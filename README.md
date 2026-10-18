@@ -1,31 +1,39 @@
 # If you can see it, PluckIt!
 
-## This is a work in progress!! 
+## This is a work in progress!!
 
-PluckIt is an original, Linux-first screen capture and annotation tool. It runs as a small always-on-top floating pill, 
-captures a region/window/monitor/ all-displays, and opens an editor for arrows, shapes, crop, blur, and pixelate before 
-you share the result.
+PluckIt is an original, Linux-first screen capture and annotation tool. It runs
+as a small always-on-top floating pill, captures a region/window/monitor/
+all-displays, and opens an editor for arrows, shapes, crop, blur, and pixelate
+before you share the result.
 
-It's a clean-room implementation written from scratch for this project. It is not a decompiled, reverse-engineered, or
-ported clone of any existing commercial application -- it was designed around a generic "screen capture + annotate" 
-feature set that's common to many tools in this space (Snagit, Flameshot, Greenshot, KSnip, ShareX, etc). See 
-`PLAN.md` for why that distinction matters and must stay true going forward.
+It's a clean-room implementation written from scratch for this project. It is
+not a decompiled, reverse-engineered, or ported clone of any existing commercial
+application -- it was designed around a generic "screen capture + annotate"
+feature set that's common to many tools in this space (Snagit, Flameshot,
+Greenshot, KSnip, ShareX, etc). See `PLAN.md` for why that distinction matters
+and must stay true going forward.
 
 ## Features
 
-- **Capture modes**: click-drag region, window picker (hover-highlight, click to grab), per-monitor, or the full virtual
-- desktop across all monitors. Multi-monitor aware, including mixed monitor layouts.
-- **Floating pill UI**: always-on-top, draggable, remembers where you left it between runs. Click to expand the
-- capture-mode panel; right-click for Show Editor / Configure / Exit.
+- **Capture modes**: click-drag region, window picker (hover-highlight, click to
+  grab), per-monitor, or the full virtual desktop across all monitors.
+  Multi-monitor aware, including mixed monitor layouts.
+- **Floating pill UI**: always-on-top, draggable, remembers where you left it
+  between runs. Click to expand the capture-mode panel; right-click for Show
+  Editor / Configure / Exit.
 - **Editor**: opens on every capture (unless turned off in Configure).
-  - Arrow, Rectangle, Ellipse annotations with adjustable color and stroke width.
+  - Arrow, Rectangle, Ellipse annotations with adjustable color and stroke
+    width.
   - **Pixelate** and **Blur** for redacting sensitive info (passwords, etc).
-    These are destructive (baked into the image immediately), with Undo as the safety net.
-  - **Crop** with draggable resize handles on all 8 corners/edges; Enter applies it, or use the Apply Crop button.
+    These are destructive (baked into the image immediately), with Undo as the
+    safety net.
+  - **Crop** with draggable resize handles on all 8 corners/edges; Enter applies
+    it, or use the Apply Crop button.
   - Undo (stack-based, covers annotations, redactions, and crop).
   - Save overwrites the already-saved capture file in place.
-- **Settings** (right-click pill -> Configure): currently just whether the editor opens automatically after a capture.
-More to come -- see `PLAN.md`.
+- **Settings** (right-click pill -> Configure): currently just whether the
+  editor opens automatically after a capture. More to come -- see `PLAN.md`.
 
 ## Requirements
 
@@ -53,30 +61,32 @@ cmake --build build
 ./build/PluckIt
 ```
 
-This starts the floating pill (single-instance -- launching it again while one is already running is a no-op). It keeps 
-running in the background; there's no "main window" to close. To quit, right-click the pill and choose **Exit**.
+This starts the floating pill (single-instance -- launching it again while one
+is already running is a no-op). It keeps running in the background; there's no
+"main window" to close. To quit, right-click the pill and choose **Exit**.
 
 ## Usage
 
 - **Click** the pill to expand/collapse the capture-mode panel.
-- **Drag** the pill to reposition it -- the new position is remembered across restarts.
+- **Drag** the pill to reposition it -- the new position is remembered across
+  restarts.
 - **Right-click** the pill for:
-  - **Show Editor** -- reopen the editor on your most recent capture (disabled until you've captured at least once this
-  session).
+  - **Show Editor** -- reopen the editor on your most recent capture (disabled
+    until you've captured at least once this session).
   - **Configure** -- open settings.
   - **Exit** -- quit PluckIt.
-- Capture modes in the expanded panel: **Region**, **Window**, **Monitor** (submenu per connected display), 
-**All Displays**.
-- Every capture is saved immediately to `~/Pictures/Captures/` as `capture_<timestamp>.png`, regardless of whether you 
-edit it afterward.
-- In the editor, **Esc** cancels an in-progress crop/region selection;
-  **Enter** applies a pending crop.
+- Capture modes in the expanded panel: **Region**, **Window**, **Monitor**
+  (submenu per connected display), **All Displays**.
+- Every capture is saved immediately to `~/Pictures/Captures/` as
+  `capture_<timestamp>.png`, regardless of whether you edit it afterward.
+- In the editor, **Esc** cancels an in-progress crop/region selection; **Enter**
+  applies a pending crop.
 
 ## Where things live
 
 - Captures: `~/Pictures/Captures/`
-- Settings: `~/.config/PluckIt/PluckIt.conf` (plain Qt INI file; pill
-  position and the editor-after-capture toggle live here)
+- Settings: `~/.config/PluckIt/PluckIt.conf` (plain Qt INI file; pill position
+  and the editor-after-capture toggle live here)
 
 ## Architecture (quick map)
 
@@ -100,6 +110,6 @@ See `PLAN.md` for the current roadmap, known limitations, and porting notes
 
 ## License
 
-GPLv3 -- see `LICENSE`. Forks and modifications are welcome, but any
-distributed version (modified or not) must stay open source under GPLv3.
+GPLv3 -- see `LICENSE`. Forks and modifications are welcome, but any distributed
+version (modified or not) must stay open source under GPLv3.
 
