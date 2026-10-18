@@ -1,4 +1,4 @@
-# PluckIt
+# If you can see it, PluckIt!
 
 ## This is a work in progress!! 
 
