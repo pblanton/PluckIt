@@ -8,7 +8,7 @@ you share the result.
 
 It's a clean-room implementation written from scratch for this project. It is not a decompiled, reverse-engineered, or
 ported clone of any existing commercial application -- it was designed around a generic "screen capture + annotate" 
-feature set that's common to many tools in this space (Snagit, Flameshot, Greenshot, KSnip, Snagit, ShareX, etc). See 
+feature set that's common to many tools in this space (Snagit, Flameshot, Greenshot, KSnip, ShareX, etc). See 
 `PLAN.md` for why that distinction matters and must stay true going forward.
 
 ## Features
