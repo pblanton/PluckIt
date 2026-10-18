@@ -1,0 +1,46 @@
+# Build output
+build/
+build-*/
+cmake-build-*/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# Qt
+*.moc
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+*_autogen/
+*.qmlc
+*.jsc
+
+# Compiled binaries/objects
+*.o
+*.obj
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.clangd/
+
+# OS cruft
+.DS_Store
+Thumbs.db

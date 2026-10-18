@@ -1,0 +1,126 @@
+# PluckIt -- Plan / Roadmap
+
+This file exists so a new contributor (including a fresh Claude session on
+another machine) can get oriented fast. Read this, then `README.md` for
+user-facing behavior, then `CLAUDE.md` for working conventions.
+
+## Hard constraint -- read this first
+
+PluckIt is an **original, clean-room implementation**. It was explicitly
+built *without* reverse-engineering any existing commercial screen-capture
+app (the project started as a request to clone a specific commercial macOS
+app by decompiling it; that was declined, and this project is the original
+alternative built instead). It targets a generic "screen capture + annotate"
+feature set shared by many tools in this space.
+
+**This constraint must hold for all future work, including the macOS port
+below.** Build the macOS backend against Apple's public screen-capture APIs
+(ScreenCaptureKit / Core Graphics) and original UI/UX decisions -- never by
+inspecting, decompiling, or imitating pixel-for-pixel any specific
+commercial app's binary or internals.
+
+Licensed GPLv3 (see `LICENSE`) specifically so forks/derivatives -- including
+a macOS port -- stay open source rather than becoming someone's closed,
+proprietary product.
+
+## Current status
+
+Working end-to-end on Linux/X11:
+- Capture: region, window, per-monitor, all-displays. Multi-monitor aware.
+- Floating pill UI with drag, remembered position, right-click menu
+  (Show Editor / Configure / Exit).
+- Editor: arrow/rectangle/ellipse annotations, crop (with resize handles,
+  Enter-to-apply), pixelate/blur redaction (destructive), undo, save
+  (overwrites the capture file in place).
+- Settings: one toggle so far (open editor automatically after capture),
+  backed by `QSettings` at `~/.config/PluckIt/PluckIt.conf`.
+
+See `README.md`'s architecture table for the file-by-file breakdown.
+
+## TODO
+
+- [ ] **Add Wayland support**
+- [ ] **Make a macOS version**
+
+### Wayland support -- notes
+
+The current `X11CaptureBackend` talks to Xlib directly and won't work
+under a Wayland session (`XDG_SESSION_TYPE=wayland` /
+`WAYLAND_DISPLAY` set). The `CaptureBackend` interface
+(`src/CaptureBackend.h`) already exists as the seam for this -- add a
+`WaylandCaptureBackend` and select it in `createCaptureBackend()`
+(`X11CaptureBackend.cpp`) based on session type at startup.
+
+Key differences to design around:
+- Screenshots go through `xdg-desktop-portal`'s `org.freedesktop.portal.Screenshot`
+  D-Bus interface (via `QtDBus`), not direct pixel access -- sandboxed by
+  design, no raw framebuffer reads.
+- Interactive region/window selection is typically delegated to the
+  **compositor's own picker** when you request an "interactive" screenshot,
+  rather than drawing our own overlay -- GNOME and KDE both restrict
+  arbitrary full-screen input-grabbing overlays for security reasons. Our
+  custom `RegionSelectOverlay`/`WindowSelectOverlay` may not be portable
+  as-is; expect to special-case the Wayland path's UX.
+- Continuous screen capture (if ever needed, e.g. for a future recording
+  feature) goes through the `ScreenCast` portal + PipeWire, not a simple
+  synchronous grab.
+- `xdg-desktop-portal` and `xdg-desktop-portal-gnome`/`-gtk` are already
+  present on the dev machine (confirmed during initial setup), so testing
+  infrastructure exists.
+
+### macOS port -- notes
+
+The editor stack (`EditorWindow`, `EditorCanvas`, `Annotation`,
+`ImageEffects`, `IconFactory`, `CaptureManager`, `SettingsWindow`,
+`SettingsKeys`) is plain Qt Widgets/QtCore/QtGui with no X11 dependency --
+it should need little to no change. The capture layer is the real work:
+
+1. **New backend**: implement `MacCaptureBackend` (likely Objective-C++,
+   `.mm`) against `CaptureBackend`'s interface:
+   - `grabRect` / `virtualDesktopGeometry`: `ScreenCaptureKit` (macOS
+     12.3+, preferred) or `CGDisplayCreateImage` / `CGWindowListCreateImage`
+     for broader OS compatibility.
+   - `windowAt`: `CGWindowListCopyWindowInfo` to enumerate on-screen
+     windows and their geometry/ordering, replacing the
+     `_NET_CLIENT_LIST_STACKING` logic in `X11CaptureBackend::windowAt`.
+2. **Screen Recording permission**: unlike X11, macOS gates screen capture
+   behind a user-granted Privacy & Security permission. The app needs to
+   check/request it on first run and handle denial gracefully (X11 has
+   nothing equivalent today -- this is new error-handling surface).
+3. **Window flags**: `RegionSelectOverlay` and `WindowSelectOverlay` use
+   `Qt::X11BypassWindowManagerHint`, which is a no-op outside X11. Verify
+   `Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Tool` alone is
+   sufficient for a borderless, input-grabbing, spans-all-displays overlay
+   on macOS; may need platform-native `NSWindow` level tweaks via Qt's
+   native handle APIs if not.
+4. **Build system**: `CMakeLists.txt` currently unconditionally
+   `find_package(X11 REQUIRED)` and compiles `X11CaptureBackend.cpp`. Add
+   `if(APPLE)` / `else()` branches: link `ScreenCaptureKit`/`AppKit`
+   frameworks and compile the Mac backend instead of the X11 one.
+5. **Packaging**: `.app` bundling, code signing, notarization are
+   unaddressed and out of scope until the backend itself works.
+
+Suggested order: stub `MacCaptureBackend` returning blank images to get the
+app compiling and the UI running on macOS first, then fill in
+`virtualDesktopGeometry` (likely works via `QGuiApplication::screens()`
+unchanged), then `grabRect`, then `windowAt`, then the permission flow last
+(so you're not fighting permission prompts while the capture code itself is
+still unreliable).
+
+## Known limitations / nice-to-haves (not yet scheduled)
+
+- Multi-monitor capture compositing (`X11CaptureBackend::grabRect`)
+  assumes a **uniform device pixel ratio across monitors**; mixed-DPI rigs
+  aren't handled correctly yet.
+- Window capture grabs the window's on-screen visible pixels at its
+  geometry, not an off-screen/composited buffer -- if another window is
+  overlapping it at the moment of capture, that overlap will be included
+  (no `XComposite`-based true window capture).
+- No Redo (Undo only).
+- No text/callout/stamp/highlighter annotation tools -- only
+  arrow/rectangle/ellipse plus the pixelate/blur redaction tools.
+- No way to move/resize an annotation after placing it (no Select tool).
+- Settings only cover the editor-auto-open toggle; no configurable save
+  location/filename pattern yet.
+- No global hotkey to trigger a capture -- the pill must be clicked.
+- No autostart-on-login integration.
