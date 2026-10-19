@@ -31,6 +31,9 @@
 // comment in X11CaptureBackend.h for why.
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
+#ifdef PLUCKIT_HAVE_XFIXES
+#include <X11/extensions/Xfixes.h>
+#endif
 
 std::unique_ptr<CaptureBackend> createCaptureBackend()
 {
@@ -68,7 +71,7 @@ QRect X11CaptureBackend::virtualDesktopGeometry() const
     return united;
 }
 
-QImage X11CaptureBackend::grabRect(const QRect &globalRect)
+QImage X11CaptureBackend::grabRect(const QRect &globalRect, bool includeCursor)
 {
     const QRect target = globalRect.normalized();
     if (target.isEmpty()) {
@@ -102,6 +105,26 @@ QImage X11CaptureBackend::grabRect(const QRect &globalRect)
         const QPoint dest = intersection.topLeft() - target.topLeft();
         painter.drawPixmap(dest, grabbed);
     }
+
+#ifdef PLUCKIT_HAVE_XFIXES
+    if (includeCursor) {
+        if (XFixesCursorImage *cursor = XFixesGetCursorImage(m_display)) {
+            QImage sprite(cursor->width, cursor->height, QImage::Format_ARGB32_Premultiplied);
+            for (int y = 0; y < sprite.height(); ++y) {
+                auto *row = reinterpret_cast<quint32 *>(sprite.scanLine(y));
+                for (int x = 0; x < sprite.width(); ++x) {
+                    // Xlib widens each 32-bit pixel to unsigned long.
+                    row[x] = static_cast<quint32>(cursor->pixels[y * sprite.width() + x]);
+                }
+            }
+            const QPoint topLeft(cursor->x - cursor->xhot, cursor->y - cursor->yhot);
+            painter.drawImage(topLeft - target.topLeft(), sprite);
+            XFree(cursor);
+        }
+    }
+#else
+    Q_UNUSED(includeCursor);
+#endif
     painter.end();
 
     return composite;

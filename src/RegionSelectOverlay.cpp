@@ -25,6 +25,11 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QTimer>
+
+namespace {
+constexpr int kUnmapSettleMs = 120;
+}
 
 RegionSelectOverlay::RegionSelectOverlay(const QRect &virtualDesktopRect, QWidget *parent)
     : QWidget(parent)
@@ -94,10 +99,17 @@ void RegionSelectOverlay::mouseReleaseEvent(QMouseEvent *event)
     m_selecting = false;
 
     if (m_selection.width() > 2 && m_selection.height() > 2) {
-        emit regionSelected(m_selection.translated(m_virtualRect.topLeft()));
-    } else {
-        emit cancelled();
+        const QRect globalRect = m_selection.translated(m_virtualRect.topLeft());
+        // The receiver grabs the screen from this signal, so the overlay (and
+        // its outline) has to be gone from the screen first.
+        hide();
+        QTimer::singleShot(kUnmapSettleMs, this, [this, globalRect]() {
+            emit regionSelected(globalRect);
+            close();
+        });
+        return;
     }
+    emit cancelled();
     close();
 }
 

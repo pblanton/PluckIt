@@ -3,11 +3,11 @@
  *  PluckIt - Screen Capture & Annotation for Linux
  * ============================================================================
  *
- *  File:        SettingsWindow.h
- *  Description: Application settings dialog
+ *  File:        SettingsPage.h
+ *  Description: Settings page embedded in the editor window
  *
  *  Author:      Phillip H. Blanton
- *  Created:     Oct 18, 2026
+ *  Created:     Oct 19, 2026
  *
  *  Copyright (c) 2026 Phillip H. Blanton
  *
@@ -22,19 +22,15 @@
 
 #pragma once
 
-#include <QDialog>
+#include <QWidget>
 
-class QCheckBox;
-
-// Minimal settings dialog, backed directly by QSettings (each control writes
-// through immediately on change -- there's no separate Save step). Deliberately
-// parented to the most recently opened EditorWindow when one exists, since
-// anchoring a dialog to the tiny floating pill looks wrong.
-class SettingsWindow : public QDialog {
+// The editor's settings page: the capture options plus a Done button. Embedded
+// in EditorWindow's page stack rather than shown as a separate dialog.
+class SettingsPage : public QWidget {
     Q_OBJECT
 public:
-    explicit SettingsWindow(QWidget *parent = nullptr);
+    explicit SettingsPage(QWidget *parent = nullptr);
 
-private:
-    QCheckBox *m_openEditorCheck = nullptr;
+signals:
+    void doneRequested();
 };

@@ -4,7 +4,7 @@
  * ============================================================================
  *
  *  File:        IconFactory.cpp
- *  Description: Painter-based implementations of the toolbar icons
+ *  Description: Painter-based implementations of the icons and glyphs
  *
  *  Author:      Phillip H. Blanton
  *  Created:     Oct 18, 2026
@@ -22,9 +22,11 @@
 
 #include "IconFactory.h"
 
+#include <QApplication>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmap>
+#include <cmath>
 
 namespace IconFactory {
 
@@ -153,7 +155,119 @@ void drawClose(QPainter &p, qreal size)
     p.drawLine(QPointF(size - m, m), QPointF(m, size - m));
 }
 
+void drawCamera(QPainter &p, const QRectF &r, const QColor &color)
+{
+    const qreal s = r.width();
+    p.setPen(QPen(color, s * 0.07, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    p.setBrush(Qt::NoBrush);
+
+    QPainterPath body;
+    body.addRoundedRect(QRectF(r.left() + s * 0.1, r.top() + s * 0.28, s * 0.8, s * 0.56), s * 0.1, s * 0.1);
+    p.drawPath(body);
+
+    QPainterPath bump;
+    bump.moveTo(r.left() + s * 0.32, r.top() + s * 0.28);
+    bump.lineTo(r.left() + s * 0.38, r.top() + s * 0.16);
+    bump.lineTo(r.left() + s * 0.62, r.top() + s * 0.16);
+    bump.lineTo(r.left() + s * 0.68, r.top() + s * 0.28);
+    p.drawPath(bump);
+
+    p.drawEllipse(QPointF(r.left() + s * 0.5, r.top() + s * 0.56), s * 0.17, s * 0.17);
+    p.setPen(QPen(color, s * 0.08, Qt::SolidLine, Qt::RoundCap));
+    p.drawPoint(QPointF(r.left() + s * 0.78, r.top() + s * 0.39));
+}
+
+void drawGear(QPainter &p, const QRectF &r, const QColor &color)
+{
+    const qreal s = r.width();
+    const QPointF c = r.center();
+    const int teeth = 8;
+    const qreal outer = s * 0.44;
+    const qreal inner = s * 0.33;
+    const qreal step = 2 * M_PI / teeth;
+    const qreal half = step / 2;
+
+    QPainterPath path;
+    for (int i = 0; i < teeth; ++i) {
+        const qreal base = i * step;
+        const qreal pts[4][2] = {
+            {base - half * 0.75, inner}, {base - half * 0.4, outer},
+            {base + half * 0.4, outer}, {base + half * 0.75, inner},
+        };
+        for (int k = 0; k < 4; ++k) {
+            const QPointF pt(c.x() + pts[k][1] * std::sin(pts[k][0]), c.y() - pts[k][1] * std::cos(pts[k][0]));
+            if (i == 0 && k == 0) {
+                path.moveTo(pt);
+            } else {
+                path.lineTo(pt);
+            }
+        }
+    }
+    path.closeSubpath();
+
+    p.setPen(QPen(color, s * 0.07, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    p.setBrush(Qt::NoBrush);
+    p.drawPath(path);
+    p.drawEllipse(c, s * 0.14, s * 0.14);
+}
+
+void drawPencil(QPainter &p, const QRectF &r, const QColor &color)
+{
+    const qreal s = r.width();
+    p.save();
+    p.translate(r.center());
+    p.rotate(45);
+    p.translate(-s / 2, -s / 2);
+
+    p.setPen(QPen(color, s * 0.07, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    p.setBrush(Qt::NoBrush);
+    QPolygonF outline;
+    outline << QPointF(s * 0.38, s * 0.14) << QPointF(s * 0.62, s * 0.14) << QPointF(s * 0.62, s * 0.68)
+            << QPointF(s * 0.5, s * 0.88) << QPointF(s * 0.38, s * 0.68);
+    p.drawPolygon(outline);
+    p.drawLine(QPointF(s * 0.38, s * 0.28), QPointF(s * 0.62, s * 0.28));
+    p.drawLine(QPointF(s * 0.38, s * 0.68), QPointF(s * 0.62, s * 0.68));
+    p.restore();
+}
+
+void drawMenu(QPainter &p, const QRectF &r, const QColor &color)
+{
+    const qreal s = r.width();
+    p.setPen(QPen(color, s * 0.1, Qt::SolidLine, Qt::RoundCap));
+    for (int i = 0; i < 3; ++i) {
+        const qreal y = r.top() + s * (0.28 + 0.22 * i);
+        p.drawLine(QPointF(r.left() + s * 0.18, y), QPointF(r.right() - s * 0.18, y));
+    }
+}
+
 } // namespace
+
+void paintGlyph(QPainter &painter, Glyph glyph, const QRectF &rect, const QColor &color)
+{
+    const qreal side = qMin(rect.width(), rect.height());
+    const QRectF square(rect.center().x() - side / 2, rect.center().y() - side / 2, side, side);
+    painter.save();
+    painter.setRenderHint(QPainter::Antialiasing);
+    switch (glyph) {
+    case Glyph::Camera: drawCamera(painter, square, color); break;
+    case Glyph::Gear: drawGear(painter, square, color); break;
+    case Glyph::Pencil: drawPencil(painter, square, color); break;
+    case Glyph::Menu: drawMenu(painter, square, color); break;
+    }
+    painter.restore();
+}
+
+QIcon glyphIcon(Glyph glyph, int size, const QColor &color)
+{
+    const qreal dpr = qApp ? qApp->devicePixelRatio() : 1.0;
+    QPixmap pm(qRound(size * dpr), qRound(size * dpr));
+    pm.setDevicePixelRatio(dpr);
+    pm.fill(Qt::transparent);
+    QPainter p(&pm);
+    paintGlyph(p, glyph, QRectF(0, 0, size, size), color);
+    p.end();
+    return QIcon(pm);
+}
 
 QIcon icon(Kind kind, int size)
 {

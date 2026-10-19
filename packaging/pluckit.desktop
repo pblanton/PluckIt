@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=PluckIt
+GenericName=Screen Capture
+Comment=Screen capture and annotation
+Exec=PluckIt
+Icon=pluckit
+Terminal=false
+Categories=Utility;Graphics;
+Keywords=screenshot;capture;annotate;
+StartupNotify=false

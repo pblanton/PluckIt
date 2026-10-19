@@ -4,7 +4,7 @@
  * ============================================================================
  *
  *  File:        EditorWindow.cpp
- *  Description: Editor window toolbars, actions, and save/close handling
+ *  Description: Editor toolbars, page switching, and save/close handling
  *
  *  Author:      Phillip H. Blanton
  *  Created:     Oct 18, 2026
@@ -24,6 +24,7 @@
 
 #include "EditorCanvas.h"
 #include "IconFactory.h"
+#include "SettingsPage.h"
 
 #include <QActionGroup>
 #include <QColorDialog>
@@ -32,26 +33,41 @@
 #include <QLabel>
 #include <QScrollArea>
 #include <QSpinBox>
+#include <QStackedWidget>
 #include <QStatusBar>
 #include <QToolBar>
 #include <QToolButton>
 
 EditorWindow::EditorWindow(const QImage &image, const QString &savedPath, QWidget *parent)
     : QMainWindow(parent)
+    , m_hasImage(!image.isNull())
     , m_savedPath(savedPath)
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    setWindowTitle(QStringLiteral("PluckIt Editor - %1").arg(QFileInfo(savedPath).fileName()));
 
     m_canvas = new EditorCanvas(image, this);
 
     auto *scrollArea = new QScrollArea(this);
     scrollArea->setWidget(m_canvas);
     scrollArea->setWidgetResizable(false);
-    setCentralWidget(scrollArea);
+
+    auto *settingsPage = new SettingsPage(this);
+    connect(settingsPage, &SettingsPage::doneRequested, this, [this]() {
+        if (m_hasImage) {
+            showImagePage();
+        } else {
+            close();
+        }
+    });
+
+    m_stack = new QStackedWidget(this);
+    m_stack->addWidget(scrollArea);
+    m_stack->addWidget(settingsPage);
+    setCentralWidget(m_stack);
 
     // --- top toolbar: file/document-level actions ---
     auto *topBar = new QToolBar(QStringLiteral("Actions"), this);
+    m_topBar = topBar;
     topBar->setMovable(false);
     topBar->setIconSize(QSize(24, 24));
     addToolBar(Qt::TopToolBarArea, topBar);
@@ -71,10 +87,13 @@ EditorWindow::EditorWindow(const QImage &image, const QString &savedPath, QWidge
     m_colorButton->setToolTip(QStringLiteral("Annotation color"));
     topBar->addWidget(m_colorButton);
 
+    auto *settingsAction = topBar->addAction(IconFactory::glyphIcon(IconFactory::Glyph::Gear, 24, QColor(60, 60, 60)),
+                                              QStringLiteral("Settings"));
     auto *closeAction = topBar->addAction(IconFactory::icon(IconFactory::Kind::Close), QStringLiteral("Close"));
 
     // --- left toolbar: drawing/redaction tools ---
     auto *leftBar = new QToolBar(QStringLiteral("Tools"), this);
+    m_leftBar = leftBar;
     leftBar->setMovable(false);
     leftBar->setOrientation(Qt::Vertical);
     leftBar->setIconSize(QSize(28, 28));
@@ -131,14 +150,41 @@ EditorWindow::EditorWindow(const QImage &image, const QString &savedPath, QWidge
     });
     connect(m_undoAction, &QAction::triggered, this, [this]() { m_canvas->undo(); });
     connect(saveAction, &QAction::triggered, this, &EditorWindow::saveToFile);
+    connect(settingsAction, &QAction::triggered, this, &EditorWindow::showSettingsPage);
     connect(closeAction, &QAction::triggered, this, &EditorWindow::close);
     connect(m_canvas, &EditorCanvas::changed, this, &EditorWindow::updateActionStates);
 
     updateActionStates();
 
-    const int w = qMin(image.width() + 80, 1200);
-    const int h = qMin(image.height() + 110, 900);
-    resize(w, h);
+    if (m_hasImage) {
+        showImagePage();
+        resize(qMin(image.width() + 80, 1200), qMin(image.height() + 110, 900));
+    } else {
+        saveAction->setEnabled(false);
+        showSettingsPage();
+        resize(520, 420);
+    }
+}
+
+QString EditorWindow::imageTitle() const
+{
+    return QStringLiteral("PluckIt Editor - %1").arg(QFileInfo(m_savedPath).fileName());
+}
+
+void EditorWindow::showSettingsPage()
+{
+    m_topBar->hide();
+    m_leftBar->hide();
+    m_stack->setCurrentIndex(1);
+    setWindowTitle(QStringLiteral("PluckIt Settings"));
+}
+
+void EditorWindow::showImagePage()
+{
+    m_topBar->show();
+    m_leftBar->show();
+    m_stack->setCurrentIndex(0);
+    setWindowTitle(imageTitle());
 }
 
 void EditorWindow::updateActionStates()

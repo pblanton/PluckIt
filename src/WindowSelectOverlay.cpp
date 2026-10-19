@@ -25,6 +25,11 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QTimer>
+
+namespace {
+constexpr int kUnmapSettleMs = 120;
+}
 
 WindowSelectOverlay::WindowSelectOverlay(CaptureBackend *backend, const QRect &virtualDesktopRect,
                                           QWidget *parent)
@@ -88,10 +93,17 @@ void WindowSelectOverlay::mousePressEvent(QMouseEvent *event)
         return;
     }
     if (m_current.handle != 0) {
-        emit windowSelected(m_current);
-    } else {
-        emit cancelled();
+        const WindowInfo selected = m_current;
+        // The receiver grabs the screen from this signal, so the overlay (and
+        // its outline) has to be gone from the screen first.
+        hide();
+        QTimer::singleShot(kUnmapSettleMs, this, [this, selected]() {
+            emit windowSelected(selected);
+            close();
+        });
+        return;
     }
+    emit cancelled();
     close();
 }
 

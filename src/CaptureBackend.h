@@ -44,8 +44,9 @@ public:
     virtual ~CaptureBackend() = default;
 
     // Grabs the given rectangle in global/root (virtual desktop) coordinates.
-    // May span multiple physical monitors.
-    virtual QImage grabRect(const QRect &globalRect) = 0;
+    // May span multiple physical monitors. Backends that can't draw the
+    // pointer ignore includeCursor.
+    virtual QImage grabRect(const QRect &globalRect, bool includeCursor = false) = 0;
 
     // Bounding rectangle of the full virtual desktop (union of all monitors).
     virtual QRect virtualDesktopGeometry() const = 0;

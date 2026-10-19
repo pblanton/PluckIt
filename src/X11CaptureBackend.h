@@ -36,7 +36,7 @@ public:
     X11CaptureBackend();
     ~X11CaptureBackend() override;
 
-    QImage grabRect(const QRect &globalRect) override;
+    QImage grabRect(const QRect &globalRect, bool includeCursor = false) override;
     QRect virtualDesktopGeometry() const override;
     WindowInfo windowAt(const QPoint &globalPos,
                          const QVector<WindowHandle> &excluding) override;

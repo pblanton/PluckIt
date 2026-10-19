@@ -23,6 +23,7 @@
 #include "FloatingWidget.h"
 
 #include <QApplication>
+#include <QIcon>
 #include <QLocalServer>
 #include <QLocalSocket>
 
@@ -32,6 +33,8 @@ int main(int argc, char *argv[])
     QApplication::setQuitOnLastWindowClosed(false);
     QCoreApplication::setOrganizationName(QStringLiteral("PluckIt"));
     QCoreApplication::setApplicationName(QStringLiteral("PluckIt"));
+    QGuiApplication::setDesktopFileName(QStringLiteral("pluckit"));
+    QApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("pluckit")));
 
     // Single-instance guard: if another PluckIt is already running, just exit.
     const QString key = QStringLiteral("pluckit-instance-%1").arg(qEnvironmentVariable("USER"));

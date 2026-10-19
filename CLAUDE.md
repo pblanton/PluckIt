@@ -19,9 +19,9 @@ cmake --build build
 ```
 
 Dependencies (Debian/Ubuntu):
-`qt6-base-dev libx11-dev libxext-dev cmake build-essential`. On macOS (once the
-port in `PLAN.md` exists) this will differ -- check `CMakeLists.txt` for the
-current platform branches.
+`qt6-base-dev libx11-dev libxext-dev libxfixes-dev cmake build-essential`. On
+macOS (once the port in `PLAN.md` exists) this will differ -- check
+`CMakeLists.txt` for the current platform branches.
 
 There is no automated test suite yet. Verify UI changes by actually running the
 app (`./build/PluckIt`) and exercising the feature -- for changes to
@@ -44,7 +44,7 @@ before finishing -- don't leave debug hooks in `main.cpp`.
   includes Qt headers. If you add Xlib usage, include `<X11/Xlib.h>` **last**,
   after all Qt headers, in the `.cpp` only.
 - New QSettings keys go in `src/SettingsKeys.h`, not inline string literals, so
-  `SettingsWindow` and whatever reads the setting can't drift apart.
+  `CaptureSettings`/the settings UI and whatever reads the setting can't drift apart.
 - Toolbar icons are procedurally drawn in `src/IconFactory.cpp`, not pulled from
   `QIcon::fromTheme()` -- icon theme availability/naming varies too much across
   GNOME/KDE/XFCE to rely on it. Follow the same pattern for new icons.

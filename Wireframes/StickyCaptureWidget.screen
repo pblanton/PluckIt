@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model:Screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://wireframesketcher.com/1.0/model.ecore">
+  <widgets xsi:type="model:Window" id="11" x="288" y="144" width="313" height="233" measuredWidth="313" measuredHeight="233" closeButton="false"/>
+  <widgets xsi:type="model:Shape" id="12" x="369" y="174" width="153" height="145" measuredWidth="153" measuredHeight="145" background="#f00">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Icon" id="13" x="407" y="213" width="77" height="67" measuredWidth="77" measuredHeight="67" foreground="#999" icon="assets/gl-camera (large)"/>
+  <widgets xsi:type="model:Icon" id="14" x="430" y="325" measuredWidth="32" measuredHeight="32" icon="assets/gl-menu-hamburger (large)"/>
+  <widgets xsi:type="model:Icon" id="15" x="542" y="231" measuredWidth="32" measuredHeight="32" icon="assets/gl-pencil (large)"/>
+  <widgets xsi:type="model:Icon" id="16" x="310" y="231" measuredWidth="32" measuredHeight="32" icon="assets/gl-cog (large)"/>
+  <widgets xsi:type="model:Callout" id="17" x="670" y="144" text="Open Editor" measuredWidth="94" measuredHeight="94">
+    <font bold="true"/>
+  </widgets>
+  <widgets xsi:type="model:Arrow" id="18" x="582" y="200" width="89" height="47" measuredWidth="89" measuredHeight="47" left="false" right="true" direction="bottom"/>
+  <widgets xsi:type="model:Callout" id="19" x="64" y="135" text="Open Settings\npage in editor" measuredWidth="111" measuredHeight="111">
+    <font bold="true"/>
+  </widgets>
+  <widgets xsi:type="model:Arrow" id="20" x="174" y="200" width="137" height="47" measuredWidth="137" measuredHeight="47"/>
+  <widgets xsi:type="model:Callout" id="21" x="120" y="405" width="156" height="138" text="Slide out capture\nsettings tray.\nShown extended." measuredWidth="156" measuredHeight="138">
+    <font bold="true"/>
+  </widgets>
+  <widgets xsi:type="model:Arrow" id="22" x="264" y="344" width="153" height="91" measuredWidth="153" measuredHeight="91" direction="bottom"/>
+  <widgets xsi:type="model:List" id="23" x="378" y="376" width="223" height="115" text="Open Capture in Editor&#xA;Copy to Clipboard&#xA;Include Cursor&#xA;Capture Delay&#xA;" measuredWidth="223" measuredHeight="115">
+    <font/>
+    <items x="0" y="2" width="223" height="26" text="Open Capture in Editor"/>
+    <items x="0" y="28" width="223" height="26" text="Copy to Clipboard"/>
+    <items x="0" y="54" width="223" height="26" text="Include Cursor"/>
+    <items x="0" y="80" width="223" height="26" text="Capture Delay"/>
+  </widgets>
+  <widgets xsi:type="model:Switch" id="25" x="560" y="378" width="37" height="21" measuredWidth="37" measuredHeight="21" selected="true" background="#3d85c6">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Switch" id="26" x="560" y="405" width="37" height="21" measuredWidth="37" measuredHeight="21" selected="true" background="#3d85c6">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Switch" id="27" x="560" y="434" width="37" height="21" measuredWidth="37" measuredHeight="21" background="#3d85c6">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Spinner" id="30" x="490" y="454" width="35" text="5" measuredWidth="35" measuredHeight="27">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Label" id="31" x="530" y="454" text="Seconds" measuredWidth="67" measuredHeight="27">
+    <font/>
+  </widgets>
+  <widgets xsi:type="model:Arrow" id="32" x="264" y="448" width="115" height="43" measuredWidth="115" measuredHeight="43" left="false" right="true" direction="bottom"/>
+  <widgets xsi:type="model:Callout" id="33" x="542" y="8" width="291" height="97" text=" Sticky side switches when dragged\ntoward a monitor side, top, or bottom " measuredWidth="291" measuredHeight="97">
+    <font bold="true"/>
+  </widgets>
+  <widgets xsi:type="model:Arrow" id="34" x="464" y="80" width="79" height="65" measuredWidth="79" measuredHeight="65" direction="bottom"/>
+  <widgets xsi:type="model:List" id="35" x="752" y="323" text="The window should rearrange into &#xA;horizontal or vertical format &#xA;depending on whether it is sticky&#xA;on top, bottom, left or right." measuredWidth="257" measuredHeight="108">
+    <font/>
+    <items x="0" y="2" width="257" height="26" text="The window should rearrange into "/>
+    <items x="0" y="28" width="257" height="26" text="horizontal or vertical format "/>
+    <items x="0" y="54" width="257" height="26" text="depending on whether it is sticky"/>
+    <items x="0" y="80" width="257" height="26" text="on top, bottom, left or right."/>
+  </widgets>
+  <hRuler/>
+  <vRuler/>
+  <font size="14px"/>
+</model:Screen>
