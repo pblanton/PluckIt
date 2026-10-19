@@ -1,4 +1,4 @@
-![if_life-pluckit-logo-320w.png](repo_files/PluckIt_Logo_PNGs/if_life-pluckit-logo-320w.png)
+![if_life-pluckit-logo-400w.png](repo_files/PluckIt_Logo_PNGs/if_life-pluckit-logo-400w.png)
 
 # PluckIt -- Plan / Roadmap
 
