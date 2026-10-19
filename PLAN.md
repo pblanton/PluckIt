@@ -37,8 +37,25 @@ See `README.md`'s architecture table for the file-by-file breakdown.
 
 ## TODO
 
-- [ ] **Add Wayland support**
-- [ ] **Make a macOS version**
+- [ ] Add Wayland support
+- [ ] Redesign pill into a multi-function floating widget.
+- [ ] Design an option to run the application as a notification "tray" icon. When someone clicks it they will be 
+displayed a small window that will provide them options for creating a new capture, changing settings, or quitting the 
+application.  
+- [ ] Allow multi-fuction floating widget to auto-hide when pinned to a monitor edge. Leave a handle with which to pull 
+it back out. 
+- [ ] Provide a setting to automatically add captures to the paste buffer.
+- [ ] Allow users to select and copy/paste from the editor.
+- [ ] Allow user to press [esc] to exit capture mode.
+- [ ] Provide a setting for capturing mouse cursor, or not.
+- [ ] Provide a setting for a capture timer. This will allow a user to start a capture, but have some pre-defined 
+time to prepare the application for the screenshot. Sometimes you need to expand a context menu or otherwise interact 
+with the application before you are ready to take the screenshot. The timer setting should include a delay time, and a 
+checkbox to enable or disable the timer. Default to 5 seconds, but remember the user's delay setting between 
+activations.
+
+
+- [ ] Create MacOS version; notes below.
 
 ### Wayland support -- notes
 

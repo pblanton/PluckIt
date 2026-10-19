@@ -1,3 +1,5 @@
+![pluckit-logo-1000w_with_border.png](repo_files/PluckIt_Logo_PNGs/pluckit-logo-1000w_with_border.png)
+
 # If you can see it, PluckIt!
 
 ## This is a work in progress!!
