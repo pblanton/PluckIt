@@ -1,13 +1,13 @@
 # CLAUDE.md
 
-Guidance for Claude Code working in this repo.
+Guidance for Claude Code or other AI assistants working in this repo.
 
 ## Read first
 
-- `PLAN.md` -- current status, roadmap/TODOs, and the **hard constraint** that
+- [PLAN.md](PLAN.md) -- current status, roadmap/TODOs, and the **hard constraint** that
   this project must stay a clean-room implementation (no reverse-engineering of
   any commercial app, ever -- see that file for why).
-- `README.md` -- user-facing features, build/run instructions, architecture file
+- [README.md](README.md) -- user-facing features, build/run instructions, architecture file
   map.
 
 ## Build & run
@@ -20,7 +20,7 @@ cmake --build build
 
 Dependencies (Debian/Ubuntu):
 `qt6-base-dev libx11-dev libxext-dev libxfixes-dev cmake build-essential`. On
-macOS (once the port in `PLAN.md` exists) this will differ -- check
+macOS (once the port in [PLAN.md](PLAN.md) exists) this will differ -- check
 `CMakeLists.txt` for the current platform branches.
 
 There is no automated test suite yet. Verify UI changes by actually running the

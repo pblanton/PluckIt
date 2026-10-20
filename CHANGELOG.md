@@ -11,6 +11,9 @@ All notable changes to PluckIt are recorded here, newest first.
   redactions, and crop included -- on the clipboard, ready to paste into chat
   or messaging apps without saving first. A "Copied to clipboard" message
   confirms it.
+- **Inter-document Hyperlinks added to all .md files**: I added inter-document
+  hyperlinks to all .md files so that the reader can bonk on them to jump from
+  document to document.
 
 ## A_0.02 -- 2026-10-19
 
@@ -48,7 +51,7 @@ All notable changes to PluckIt are recorded here, newest first.
   `apt-get install` missing ones), builds a Release binary, and installs it with
   a launcher entry and icons. Defaults to `~/.local`; options `--autostart`,
   `--system`, `--prefix DIR`, `--uninstall`, `--skip-deps`, `-y`.
-- CMake `install()` rules, a `.desktop` launcher (`packaging/pluckit.desktop`),
+- CMake `install()` rules, a `.desktop` launcher ([packaging/pluckit.desktop](packaging/pluckit.desktop)),
   and hicolor icons generated from the logo glyph.
 - Application and window icon, and desktop-file name, set at startup.
 
@@ -76,7 +79,7 @@ All notable changes to PluckIt are recorded here, newest first.
 - Dragging a collapsed handle doesn't work; wait until the widget is expanded
 before dragging it.
 - Mixed-DPI multi-monitor setups and overlapped window captures are still
-  imperfect (see "Known limitations" in `PLAN.md`).
+  imperfect (see "Known limitations" in [PLAN.md](PLAN.md)).
 
 ## A_0.01 -- 2026-10-18
 

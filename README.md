@@ -2,7 +2,7 @@
 
 ## This is a work in progress!!
 
-Current version: **A_0.02** -- see `CHANGELOG.md` for what changed.
+Current version: **A_0.02** -- see [CHANGELOG.md](CHANGELOG.md) for what changed.
 
 PluckIt is an original, Linux-first screen capture and annotation tool. It runs
 as a small always-on-top capture widget, captures a region/window/monitor/
@@ -48,11 +48,11 @@ and must remain the focus moving forward.
   - Save overwrites the already-saved capture file in place.
 - **Settings**: the same capture options, available from the tray or from the
   gear (a settings page inside the editor window). More to come -- see
-  `PLAN.md`.
+  [PLAN.md](PLAN.md).
 
 ## Requirements
 
-- Linux, X11 session (see `PLAN.md` for Wayland status)
+- Linux, X11 session (see [PLAN.md](PLAN.md) for Wayland status)
 - Qt 6 (Widgets, Network)
 - X11 development libraries (Xlib, Xext, and XFixes for cursor capture)
 - CMake >= 3.16, a C++17 compiler
@@ -152,11 +152,11 @@ is already running is a no-op). It keeps running in the background; there's no
 | `IconFactory` | Procedurally-drawn toolbar icons (no dependency on a system icon theme) |
 | `SettingsPage` / `SettingsKeys` | The editor's settings page and the QSettings key names |
 
-See `PLAN.md` for the current roadmap, known limitations, and porting notes
+See [PLAN.md](PLAN.md) for the current roadmap, known limitations, and porting notes
 (Wayland, macOS).
 
 ## License
 
-GPLv3 -- see `LICENSE`. Forks and modifications are welcome, but any distributed
+GPLv3 -- see [LICENSE](LICENSE). Forks and modifications are welcome, but any distributed
 version (modified or not) must stay open source under GPLv3.
 

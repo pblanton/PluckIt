@@ -3,7 +3,7 @@
 # PluckIt -- Plan / Roadmap
 
 This file exists so a new contributor can get oriented fast. Read this, then
-`README.md` for user-facing behavior. AI Assistants please read `CLAUDE.md` for
+[README.md](README.md) for user-facing behavior. AI Assistants please read [CLAUDE.md](CLAUDE.md) for
 working conventions.
 
 ## Hard constraint -- read this first
@@ -19,13 +19,13 @@ below.** Build the macOS backend against Apple's public screen-capture APIs
 inspecting, decompiling, or imitating pixel-for-pixel any specific commercial
 app's binary or internals.
 
-Licensed GPLv3 (see `LICENSE`) specifically so forks/derivatives -- including a
+Licensed GPLv3 (see [LICENSE](LICENSE)) specifically so forks/derivatives -- including a
 macOS port -- stay open source rather than becoming someone's closed,
 proprietary product.
 
 ## Current status
 
-Current release: **A_0.02** (see `CHANGELOG.md`). Working end-to-end on
+Current release: **A_0.02** (see [CHANGELOG.md](CHANGELOG.md)). Working end-to-end on
 Linux/X11:
 - Capture: region, window, per-monitor, all-displays. Multi-monitor aware.
 - Capture widget docked to a screen edge (drag toward another edge or monitor to
@@ -39,14 +39,15 @@ Linux/X11:
   back out. Toggle in the options.
 - Capture options: preview in editor, copy to clipboard, include mouse cursor
   (needs `libxfixes-dev` at build time), and an optional countdown delay.
-- Install: `scripts/build-and-install.sh` builds and installs to `~/.local` with
+- Install: [scripts/build-and-install.sh](scripts/build-and-install.sh]) builds and installs
+to `~/.local` with
   a launcher entry, icons, and optional start-at-login.
 - Editor: arrow/rectangle/ellipse annotations, crop (with resize handles,
   Enter-to-apply), pixelate/blur redaction (destructive), undo, save (overwrites
   the capture file in place).
 - Settings are stored with `QSettings` at `~/.config/PluckIt/PluckIt.conf`.
 
-See `README.md`'s architecture table for the file-by-file breakdown.
+See [README.md's](README.md) architecture table for the file-by-file breakdown.
 
 ## TODO
 
