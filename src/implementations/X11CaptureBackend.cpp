@@ -20,7 +20,7 @@
  * ============================================================================
  */
 
-#include "X11CaptureBackend.h"
+#include "../headers/X11CaptureBackend.h"
 
 #include <QGuiApplication>
 #include <QPainter>
@@ -29,6 +29,7 @@
 
 // Included last and deliberately after all Qt headers above -- see the
 // comment in X11CaptureBackend.h for why.
+
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #ifdef PLUCKIT_HAVE_XFIXES

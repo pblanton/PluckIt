@@ -20,9 +20,9 @@
  * ============================================================================
  */
 
-#include "CaptureButton.h"
+#include "../headers/CaptureButton.h"
 
-#include "IconFactory.h"
+#include "../headers/IconFactory.h"
 
 #include <QContextMenuEvent>
 #include <QMouseEvent>

@@ -20,16 +20,16 @@
  * ============================================================================
  */
 
-#include "FloatingWidget.h"
+#include "../headers/FloatingWidget.h"
 
-#include "CaptureButton.h"
-#include "CaptureManager.h"
-#include "CaptureSettings.h"
-#include "EditorWindow.h"
-#include "IconFactory.h"
-#include "RegionSelectOverlay.h"
-#include "SettingsKeys.h"
-#include "WindowSelectOverlay.h"
+#include "../headers/CaptureButton.h"
+#include "../headers/CaptureManager.h"
+#include "../headers/CaptureSettings.h"
+#include "../headers/EditorWindow.h"
+#include "../headers/IconFactory.h"
+#include "../headers/RegionSelectOverlay.h"
+#include "../headers/SettingsKeys.h"
+#include "../headers/WindowSelectOverlay.h"
 
 #include <QActionGroup>
 #include <QApplication>

@@ -20,11 +20,11 @@
  * ============================================================================
  */
 
-#include "EditorWindow.h"
+#include "../headers/EditorWindow.h"
 
-#include "EditorCanvas.h"
-#include "IconFactory.h"
-#include "SettingsPage.h"
+#include "../headers/EditorCanvas.h"
+#include "../headers/IconFactory.h"
+#include "../headers/SettingsPage.h"
 
 #include <QActionGroup>
 #include <QColorDialog>

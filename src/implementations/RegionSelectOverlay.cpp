@@ -20,7 +20,7 @@
  * ============================================================================
  */
 
-#include "RegionSelectOverlay.h"
+#include "../headers/RegionSelectOverlay.h"
 
 #include <QKeyEvent>
 #include <QMouseEvent>

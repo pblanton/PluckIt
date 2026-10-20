@@ -20,7 +20,7 @@
  * ============================================================================
  */
 
-#include "ToggleSwitch.h"
+#include "../headers/ToggleSwitch.h"
 
 #include <QPainter>
 

@@ -75,7 +75,7 @@ See `README.md`'s architecture table for the file-by-file breakdown.
 
 The current `X11CaptureBackend` talks to Xlib directly and won't work under a
 Wayland session (`XDG_SESSION_TYPE=wayland` / `WAYLAND_DISPLAY` set). The
-`CaptureBackend` interface (`src/CaptureBackend.h`) already exists as the seam
+`CaptureBackend` interface (`src/headers/CaptureBackend.h`) already exists as the seam
 for this -- add a `WaylandCaptureBackend` and select it in
 `createCaptureBackend()` (`X11CaptureBackend.cpp`) based on session type at
 startup.

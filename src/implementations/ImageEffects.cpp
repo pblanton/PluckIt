@@ -20,7 +20,7 @@
  * ============================================================================
  */
 
-#include "ImageEffects.h"
+#include "../headers/ImageEffects.h"
 
 #include <QPainter>
 

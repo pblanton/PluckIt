@@ -20,7 +20,7 @@
  * ============================================================================
  */
 
-#include "FloatingWidget.h"
+#include "../headers/FloatingWidget.h"
 
 #include <QApplication>
 #include <QIcon>

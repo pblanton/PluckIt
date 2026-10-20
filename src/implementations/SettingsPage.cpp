@@ -20,9 +20,9 @@
  * ============================================================================
  */
 
-#include "SettingsPage.h"
+#include "../headers/SettingsPage.h"
 
-#include "CaptureOptionsPanel.h"
+#include "../headers/CaptureOptionsPanel.h"
 
 #include <QLabel>
 #include <QPushButton>

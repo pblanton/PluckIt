@@ -20,7 +20,7 @@
  * ============================================================================
  */
 
-#include "IconFactory.h"
+#include "../headers/IconFactory.h"
 
 #include <QApplication>
 #include <QPainter>

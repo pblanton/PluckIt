@@ -20,7 +20,7 @@
  * ============================================================================
  */
 
-#include "WindowSelectOverlay.h"
+#include "../headers/WindowSelectOverlay.h"
 
 #include <QKeyEvent>
 #include <QMouseEvent>

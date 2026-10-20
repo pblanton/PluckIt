@@ -20,7 +20,7 @@
  * ============================================================================
  */
 
-#include "Annotation.h"
+#include "../headers/Annotation.h"
 
 #include <QPainter>
 #include <QPolygonF>

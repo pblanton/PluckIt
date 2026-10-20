@@ -20,9 +20,9 @@
  * ============================================================================
  */
 
-#include "CaptureSettings.h"
+#include "../headers/CaptureSettings.h"
 
-#include "SettingsKeys.h"
+#include "../headers/SettingsKeys.h"
 
 #include <QSettings>
 

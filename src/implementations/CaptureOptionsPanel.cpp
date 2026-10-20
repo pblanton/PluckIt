@@ -20,10 +20,10 @@
  * ============================================================================
  */
 
-#include "CaptureOptionsPanel.h"
+#include "../headers/CaptureOptionsPanel.h"
 
-#include "CaptureSettings.h"
-#include "ToggleSwitch.h"
+#include "../headers/CaptureSettings.h"
+#include "../headers/ToggleSwitch.h"
 
 #include <QCheckBox>
 #include <QGridLayout>

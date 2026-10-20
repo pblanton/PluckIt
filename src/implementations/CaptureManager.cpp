@@ -20,7 +20,7 @@
  * ============================================================================
  */
 
-#include "CaptureManager.h"
+#include "../headers/CaptureManager.h"
 
 #include <QDateTime>
 #include <QDir>

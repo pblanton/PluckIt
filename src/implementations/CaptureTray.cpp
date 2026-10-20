@@ -20,9 +20,9 @@
  * ============================================================================
  */
 
-#include "CaptureTray.h"
+#include "../headers/CaptureTray.h"
 
-#include "CaptureOptionsPanel.h"
+#include "../headers/CaptureOptionsPanel.h"
 
 #include <QEasingCurve>
 #include <QPainter>

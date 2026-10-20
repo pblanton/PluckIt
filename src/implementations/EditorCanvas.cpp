@@ -20,9 +20,9 @@
  * ============================================================================
  */
 
-#include "EditorCanvas.h"
+#include "../headers/EditorCanvas.h"
 
-#include "ImageEffects.h"
+#include "../headers/ImageEffects.h"
 
 #include <QMouseEvent>
 #include <QPainter>
