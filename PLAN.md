@@ -58,7 +58,9 @@ See `README.md`'s architecture table for the file-by-file breakdown.
 - [x] Allow multi-fuction floating widget to auto-hide when pinned to a monitor
   edge. Leave a handle with which to pull it back out.
 - [x] Provide a setting to automatically add captures to the paste buffer.
-- [ ] Allow users to select and copy/paste from the editor.
+- [ ] Allow users to select and copy/paste from the editor. (Copying the whole
+  edited image works -- toolbar button and Ctrl+C. Still open: selecting a
+  sub-region to copy, and pasting images into the editor.)
 - [ ] Allow user to press [esc] to exit capture mode.
 - [x] Provide a setting for capturing mouse cursor, or not.
 - [x] Provide a setting for a capture timer. This will allow a user to start a

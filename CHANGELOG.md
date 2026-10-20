@@ -2,6 +2,16 @@
 
 All notable changes to PluckIt are recorded here, newest first.
 
+## Unreleased
+
+### Added
+
+- **Copy from the editor**: a Copy button in the editor toolbar, and Ctrl+C
+  (Cmd+C on macOS once ported), put the whole edited image -- annotations,
+  redactions, and crop included -- on the clipboard, ready to paste into chat
+  or messaging apps without saving first. A "Copied to clipboard" message
+  confirms it.
+
 ## A_0.02 -- 2026-10-19
 
 ### Added

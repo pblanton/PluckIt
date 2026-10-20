@@ -27,8 +27,10 @@
 #include "../headers/SettingsPage.h"
 
 #include <QActionGroup>
+#include <QClipboard>
 #include <QColorDialog>
 #include <QFileInfo>
+#include <QGuiApplication>
 #include <QKeySequence>
 #include <QLabel>
 #include <QScrollArea>
@@ -74,6 +76,10 @@ EditorWindow::EditorWindow(const QImage &image, const QString &savedPath, QWidge
 
     m_undoAction = topBar->addAction(IconFactory::icon(IconFactory::Kind::Undo), QStringLiteral("Undo"));
     auto *saveAction = topBar->addAction(IconFactory::icon(IconFactory::Kind::Save), QStringLiteral("Save"));
+    auto *copyAction = topBar->addAction(IconFactory::icon(IconFactory::Kind::Copy), QStringLiteral("Copy"));
+    copyAction->setShortcut(QKeySequence::Copy);
+    copyAction->setToolTip(QStringLiteral("Copy the image to the clipboard (%1)")
+                               .arg(QKeySequence(QKeySequence::Copy).toString(QKeySequence::NativeText)));
     topBar->addSeparator();
 
     auto *cropAction = topBar->addAction(IconFactory::icon(IconFactory::Kind::Crop), QStringLiteral("Crop"));
@@ -150,6 +156,7 @@ EditorWindow::EditorWindow(const QImage &image, const QString &savedPath, QWidge
     });
     connect(m_undoAction, &QAction::triggered, this, [this]() { m_canvas->undo(); });
     connect(saveAction, &QAction::triggered, this, &EditorWindow::saveToFile);
+    connect(copyAction, &QAction::triggered, this, &EditorWindow::copyToClipboard);
     connect(settingsAction, &QAction::triggered, this, &EditorWindow::showSettingsPage);
     connect(closeAction, &QAction::triggered, this, &EditorWindow::close);
     connect(m_canvas, &EditorCanvas::changed, this, &EditorWindow::updateActionStates);
@@ -161,6 +168,7 @@ EditorWindow::EditorWindow(const QImage &image, const QString &savedPath, QWidge
         resize(qMin(image.width() + 80, 1200), qMin(image.height() + 110, 900));
     } else {
         saveAction->setEnabled(false);
+        copyAction->setEnabled(false);
         showSettingsPage();
         resize(520, 420);
     }
@@ -201,6 +209,12 @@ void EditorWindow::pickColor()
         m_canvas->setColor(chosen);
         m_colorButton->setIcon(IconFactory::colorSwatch(chosen, 24));
     }
+}
+
+void EditorWindow::copyToClipboard()
+{
+    QGuiApplication::clipboard()->setImage(m_canvas->flattenedImage());
+    statusBar()->showMessage(QStringLiteral("Copied to clipboard"), 2000);
 }
 
 void EditorWindow::saveToFile()

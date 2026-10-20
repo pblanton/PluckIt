@@ -42,6 +42,9 @@ and must remain the focus moving forward.
   - **Crop** with draggable resize handles on all 8 corners/edges; Enter applies
     it, or use the Apply Crop button.
   - Undo (stack-based, covers annotations, redactions, and crop).
+  - **Copy** (toolbar button or Ctrl+C) puts the edited image, annotations
+    included, on the clipboard so you can paste it straight into a chat or
+    message without saving it first.
   - Save overwrites the already-saved capture file in place.
 - **Settings**: the same capture options, available from the tray or from the
   gear (a settings page inside the editor window). More to come -- see

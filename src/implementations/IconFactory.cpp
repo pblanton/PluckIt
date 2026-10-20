@@ -147,6 +147,28 @@ void drawSave(QPainter &p, qreal size)
     p.fillRect(QRectF(m + size * 0.18, m, size * 0.3, size * 0.16), kStroke);
 }
 
+void drawCopy(QPainter &p, qreal size)
+{
+    const qreal w = size * 0.07;
+    p.setPen(QPen(kStroke, w, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    p.setBrush(Qt::NoBrush);
+
+    // back sheet: only its top and left edges peek out from behind the front one
+    const QRectF back(size * 0.2, size * 0.14, size * 0.46, size * 0.52);
+    QPainterPath backPath;
+    backPath.moveTo(back.left() + size * 0.12, back.top());
+    backPath.lineTo(back.left() + size * 0.04, back.top());
+    backPath.quadTo(back.topLeft(), QPointF(back.left(), back.top() + size * 0.04));
+    backPath.lineTo(back.left(), back.bottom() - size * 0.02);
+    p.drawPath(backPath);
+    p.drawLine(QPointF(back.left() + size * 0.12, back.top()), QPointF(back.right(), back.top()));
+    p.drawLine(QPointF(back.right(), back.top()), QPointF(back.right(), back.top() + size * 0.08));
+
+    const QRectF front(size * 0.34, size * 0.3, size * 0.46, size * 0.54);
+    p.setBrush(QColor(255, 255, 255, 0));
+    p.drawRoundedRect(front, size * 0.06, size * 0.06);
+}
+
 void drawClose(QPainter &p, qreal size)
 {
     const qreal m = size * 0.26;
@@ -284,6 +306,7 @@ QIcon icon(Kind kind, int size)
     case Kind::Crop: drawCrop(p, size); break;
     case Kind::Undo: drawUndo(p, size); break;
     case Kind::Save: drawSave(p, size); break;
+    case Kind::Copy: drawCopy(p, size); break;
     case Kind::Close: drawClose(p, size); break;
     }
 

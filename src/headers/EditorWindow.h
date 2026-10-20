@@ -49,6 +49,7 @@ private:
     void updateActionStates();
     void pickColor();
     void saveToFile();
+    void copyToClipboard();
 
     QString imageTitle() const;
 
