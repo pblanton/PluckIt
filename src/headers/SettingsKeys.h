@@ -36,5 +36,6 @@ constexpr auto WidgetScreen = "widget/screen";
 constexpr auto WidgetEdge = "widget/edge";
 constexpr auto WidgetAlong = "widget/along";
 constexpr auto AutoHide = "widget/autoHide";
+constexpr auto HideWhileCapturing = "capture/hideWhileCapturing";
 
 } // namespace SettingsKeys

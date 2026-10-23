@@ -2,7 +2,26 @@
 
 All notable changes to PluckIt are recorded here, newest first.
 
-## Unreleased
+## A_0.03 -- 2026-10-23 
+
+### Changed
+
+- **One tabbed editor instead of a window per capture.** There is only ever one
+  editor window. A new capture opens in a new tab and switches to it; if the
+  editor isn't open yet, it opens with that one tab. Opening the editor yourself
+  (the pencil, or Open Editor in the right-click menu) opens a single tab with
+  the most recent capture, or switches to its tab if it's already open. The
+  gear opens the settings page in the same window.
+- Tabs are labeled with the capture time (the date too, for older captures);
+  the tooltip shows the file name. Tabs close with their 'X' or Ctrl+W, and the
+  window closes with its last tab. The toolbar's close button now closes the
+  current tab rather than the whole window.
+- Tool, color, and stroke width are shared across tabs; undo, crop, Save, and
+  Copy apply to the current tab.
+- Opening the most recent capture from the widget now reloads it from disk, so
+  edits you saved earlier are shown rather than the original capture.
+- New setting "Hide PluckIt when Capturing" hides all PluckIt windows when you create a new capture. 
+  This is a setting you can turn off in the event you need to capture a PluckIt Window.
 
 ### Added
 

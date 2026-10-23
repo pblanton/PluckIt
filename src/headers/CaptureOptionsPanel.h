@@ -45,6 +45,7 @@ private:
     ToggleSwitch *m_clipboard = nullptr;
     ToggleSwitch *m_cursor = nullptr;
     ToggleSwitch *m_autoHide = nullptr;
+    ToggleSwitch *m_hideWhileCapturing = nullptr;
     QCheckBox *m_delayCheck = nullptr;
     QSpinBox *m_delaySpin = nullptr;
 };

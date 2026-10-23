@@ -350,7 +350,7 @@ void FloatingWidget::pollHover()
         || (m_tray->isVisible() && m_tray->geometry().adjusted(-slack, -slack, slack, slack).contains(cursor));
     // Counting down or showing a menu means the user is mid-task even though
     // the pointer is elsewhere.
-    const bool busy = m_countdownTimer->isActive() || QApplication::activePopupWidget();
+    const bool busy = m_captureActive || m_countdownTimer->isActive() || QApplication::activePopupWidget();
     if (inside || busy) {
         m_dwell.invalidate();
     } else if (!m_dwell.isValid()) {
@@ -669,10 +669,30 @@ void FloatingWidget::tickCountdown()
 
 void FloatingWidget::beginCapture()
 {
-    hide();
-    // Give the window manager a moment to actually unmap the widget so it
-    // doesn't end up in its own screenshot.
-    QTimer::singleShot(200, this, &FloatingWidget::runCapture);
+    m_captureActive = true;
+    int settleMs = 200;
+    if (CaptureSettings::instance().hideWhileCapturing()) {
+        hide();
+        EditorWindow *editor = EditorWindow::instance();
+        if (editor && editor->isVisible() && !editor->isMinimized()) {
+            editor->hide();
+            m_hiddenEditor = editor;
+            settleMs = 300;
+        }
+    }
+    // Give the window manager a moment to actually unmap our windows so they
+    // don't end up in the screenshot.
+    QTimer::singleShot(settleMs, this, &FloatingWidget::runCapture);
+}
+
+void FloatingWidget::endCapture()
+{
+    m_captureActive = false;
+    show();
+    if (m_hiddenEditor) {
+        m_hiddenEditor->show();
+        m_hiddenEditor.clear();
+    }
 }
 
 void FloatingWidget::runCapture()
@@ -713,14 +733,14 @@ void FloatingWidget::onWindowSelected(const WindowInfo &info)
 
 void FloatingWidget::onSelectionCancelled()
 {
-    show();
+    endCapture();
 }
 
 void FloatingWidget::completeCapture(const QRect &globalRect)
 {
-    // Grab before re-showing the widget so it can't appear in the shot.
+    // Grab before re-showing our windows so they can't appear in the shot.
     const QImage image = m_backend->grabRect(globalRect, CaptureSettings::instance().includeCursor());
-    show();
+    endCapture();
     finishCapture(image);
 }
 
@@ -769,9 +789,7 @@ void FloatingWidget::loadLastCaptureFromDisk()
 
 void FloatingWidget::openEditorOn(const QImage &image, const QString &path)
 {
-    auto *editor = new EditorWindow(image, path);
-    m_lastEditor = editor;
-    editor->show();
+    EditorWindow::acquire().openImage(image, path);
 }
 
 void FloatingWidget::showLastCaptureInEditor()
@@ -779,17 +797,19 @@ void FloatingWidget::showLastCaptureInEditor()
     if (m_lastCapturePath.isEmpty()) {
         return;
     }
-    openEditorOn(m_lastCaptureImage, m_lastCapturePath);
+    // Prefer the file on disk: the user may have saved edits over the original
+    // capture since it was taken.
+    const QImage onDisk(m_lastCapturePath);
+    openEditorOn(onDisk.isNull() ? m_lastCaptureImage : onDisk, m_lastCapturePath);
 }
 
 void FloatingWidget::showSettings()
 {
     closeTray();
-    if (!m_lastEditor) {
-        m_lastEditor = new EditorWindow(m_lastCaptureImage, m_lastCapturePath);
+    EditorWindow &editor = EditorWindow::acquire();
+    if (!editor.hasImages() && !m_lastCapturePath.isEmpty()) {
+        showLastCaptureInEditor();
     }
-    m_lastEditor->showSettingsPage();
-    m_lastEditor->show();
-    m_lastEditor->raise();
-    m_lastEditor->activateWindow();
+    editor.showSettingsPage();
+    editor.present();
 }

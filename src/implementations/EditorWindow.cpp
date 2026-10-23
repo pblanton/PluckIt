@@ -22,40 +22,75 @@
 
 #include "../headers/EditorWindow.h"
 
-#include "../headers/EditorCanvas.h"
 #include "../headers/IconFactory.h"
 #include "../headers/SettingsPage.h"
 
 #include <QActionGroup>
 #include <QClipboard>
 #include <QColorDialog>
+#include <QDateTime>
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QKeySequence>
-#include <QLabel>
 #include <QScrollArea>
 #include <QSpinBox>
 #include <QStackedWidget>
 #include <QStatusBar>
+#include <QTabBar>
+#include <QTabWidget>
 #include <QToolBar>
 #include <QToolButton>
 
-EditorWindow::EditorWindow(const QImage &image, const QString &savedPath, QWidget *parent)
-    : QMainWindow(parent)
-    , m_hasImage(!image.isNull())
-    , m_savedPath(savedPath)
+QPointer<EditorWindow> EditorWindow::s_instance;
+
+namespace {
+
+const char *kPathProperty = "pluckitPath";
+
+// Tabs are narrow and the filename's distinguishing part is its time, so show
+// just that (plus the date for captures from another day).
+QString tabTitle(const QString &path)
+{
+    const QString name = QFileInfo(path).completeBaseName();
+    const QDateTime taken = QDateTime::fromString(name, QStringLiteral("'capture_'yyyy-MM-dd_HHmmss"));
+    if (!taken.isValid()) {
+        return name;
+    }
+    return taken.date() == QDate::currentDate() ? taken.toString(QStringLiteral("HH:mm:ss"))
+                                                 : taken.toString(QStringLiteral("MM-dd HH:mm:ss"));
+}
+
+} // namespace
+
+EditorWindow *EditorWindow::instance()
+{
+    return s_instance;
+}
+
+EditorWindow &EditorWindow::acquire()
+{
+    if (!s_instance) {
+        s_instance = new EditorWindow;
+    }
+    return *s_instance;
+}
+
+EditorWindow::EditorWindow()
+    : QMainWindow(nullptr)
 {
     setAttribute(Qt::WA_DeleteOnClose);
 
-    m_canvas = new EditorCanvas(image, this);
-
-    auto *scrollArea = new QScrollArea(this);
-    scrollArea->setWidget(m_canvas);
-    scrollArea->setWidgetResizable(false);
+    m_tabs = new QTabWidget(this);
+    m_tabs->setDocumentMode(true);
+    m_tabs->setTabsClosable(true);
+    m_tabs->setMovable(true);
+    m_tabs->setElideMode(Qt::ElideRight);
+    connect(m_tabs, &QTabWidget::tabCloseRequested, this, &EditorWindow::closeTab);
+    connect(m_tabs, &QTabWidget::currentChanged, this, &EditorWindow::onCurrentTabChanged);
 
     auto *settingsPage = new SettingsPage(this);
     connect(settingsPage, &SettingsPage::doneRequested, this, [this]() {
-        if (m_hasImage) {
+        if (hasImages()) {
             showImagePage();
         } else {
             close();
@@ -63,7 +98,7 @@ EditorWindow::EditorWindow(const QImage &image, const QString &savedPath, QWidge
     });
 
     m_stack = new QStackedWidget(this);
-    m_stack->addWidget(scrollArea);
+    m_stack->addWidget(m_tabs);
     m_stack->addWidget(settingsPage);
     setCentralWidget(m_stack);
 
@@ -75,15 +110,15 @@ EditorWindow::EditorWindow(const QImage &image, const QString &savedPath, QWidge
     addToolBar(Qt::TopToolBarArea, topBar);
 
     m_undoAction = topBar->addAction(IconFactory::icon(IconFactory::Kind::Undo), QStringLiteral("Undo"));
-    auto *saveAction = topBar->addAction(IconFactory::icon(IconFactory::Kind::Save), QStringLiteral("Save"));
-    auto *copyAction = topBar->addAction(IconFactory::icon(IconFactory::Kind::Copy), QStringLiteral("Copy"));
-    copyAction->setShortcut(QKeySequence::Copy);
-    copyAction->setToolTip(QStringLiteral("Copy the image to the clipboard (%1)")
-                               .arg(QKeySequence(QKeySequence::Copy).toString(QKeySequence::NativeText)));
+    m_saveAction = topBar->addAction(IconFactory::icon(IconFactory::Kind::Save), QStringLiteral("Save"));
+    m_copyAction = topBar->addAction(IconFactory::icon(IconFactory::Kind::Copy), QStringLiteral("Copy"));
+    m_copyAction->setShortcut(QKeySequence::Copy);
+    m_copyAction->setToolTip(QStringLiteral("Copy the image to the clipboard (%1)")
+                                 .arg(QKeySequence(QKeySequence::Copy).toString(QKeySequence::NativeText)));
     topBar->addSeparator();
 
-    auto *cropAction = topBar->addAction(IconFactory::icon(IconFactory::Kind::Crop), QStringLiteral("Crop"));
-    cropAction->setCheckable(true);
+    m_cropAction = topBar->addAction(IconFactory::icon(IconFactory::Kind::Crop), QStringLiteral("Crop"));
+    m_cropAction->setCheckable(true);
     m_applyCropAction = topBar->addAction(QStringLiteral("Apply Crop"));
     m_applyCropAction->setShortcuts({QKeySequence(Qt::Key_Return), QKeySequence(Qt::Key_Enter)});
     topBar->addSeparator();
@@ -95,7 +130,10 @@ EditorWindow::EditorWindow(const QImage &image, const QString &savedPath, QWidge
 
     auto *settingsAction = topBar->addAction(IconFactory::glyphIcon(IconFactory::Glyph::Gear, 24, QColor(60, 60, 60)),
                                               QStringLiteral("Settings"));
-    auto *closeAction = topBar->addAction(IconFactory::icon(IconFactory::Kind::Close), QStringLiteral("Close"));
+    m_closeTabAction = topBar->addAction(IconFactory::icon(IconFactory::Kind::Close), QStringLiteral("Close tab"));
+    m_closeTabAction->setShortcut(QKeySequence::Close);
+    m_closeTabAction->setToolTip(QStringLiteral("Close this tab (%1)")
+                                     .arg(QKeySequence(QKeySequence::Close).toString(QKeySequence::NativeText)));
 
     // --- left toolbar: drawing/redaction tools ---
     auto *leftBar = new QToolBar(QStringLiteral("Tools"), this);
@@ -105,23 +143,26 @@ EditorWindow::EditorWindow(const QImage &image, const QString &savedPath, QWidge
     leftBar->setIconSize(QSize(28, 28));
     addToolBar(Qt::LeftToolBarArea, leftBar);
 
-    auto *widthSpin = new QSpinBox(leftBar);
-    widthSpin->setRange(1, 20);
-    widthSpin->setValue(3);
-    widthSpin->setToolTip(QStringLiteral("Stroke width"));
-    widthSpin->setFixedWidth(50);
-    leftBar->addWidget(widthSpin);
+    m_widthSpin = new QSpinBox(leftBar);
+    m_widthSpin->setRange(1, 20);
+    m_widthSpin->setValue(m_strokeWidth);
+    m_widthSpin->setToolTip(QStringLiteral("Stroke width"));
+    m_widthSpin->setFixedWidth(50);
+    leftBar->addWidget(m_widthSpin);
     leftBar->addSeparator();
 
-    auto *toolGroup = new QActionGroup(this);
-    toolGroup->setExclusive(true);
+    m_toolGroup = new QActionGroup(this);
+    m_toolGroup->setExclusive(true);
 
     auto addTool = [&](IconFactory::Kind iconKind, const QString &tip, EditorCanvas::Tool tool) {
         QAction *action = leftBar->addAction(IconFactory::icon(iconKind), tip);
         action->setCheckable(true);
-        toolGroup->addAction(action);
+        m_toolGroup->addAction(action);
         connect(action, &QAction::toggled, this, [this, tool](bool on) {
-            if (on) m_canvas->setTool(tool);
+            if (on) {
+                m_tool = tool;
+                if (EditorCanvas *canvas = currentCanvas()) canvas->setTool(tool);
+            }
         });
         return action;
     };
@@ -135,48 +176,146 @@ EditorWindow::EditorWindow(const QImage &image, const QString &savedPath, QWidge
 
     arrowAction->setChecked(true);
 
-    connect(cropAction, &QAction::toggled, this, [this](bool on) {
-        if (on) m_canvas->setTool(EditorCanvas::Tool::Crop);
+    connect(m_cropAction, &QAction::toggled, this, [this](bool on) {
+        if (on) {
+            m_tool = EditorCanvas::Tool::Crop;
+            if (EditorCanvas *canvas = currentCanvas()) canvas->setTool(m_tool);
+        }
     });
     // Entering crop mode and entering a draw/redact tool are mutually exclusive.
-    connect(toolGroup, &QActionGroup::triggered, this, [cropAction](QAction *) {
-        cropAction->setChecked(false);
+    connect(m_toolGroup, &QActionGroup::triggered, this, [this](QAction *) {
+        m_cropAction->setChecked(false);
     });
-    connect(cropAction, &QAction::toggled, this, [toolGroup](bool on) {
-        if (on && toolGroup->checkedAction()) {
-            toolGroup->checkedAction()->setChecked(false);
+    connect(m_cropAction, &QAction::toggled, this, [this](bool on) {
+        if (on && m_toolGroup->checkedAction()) {
+            m_toolGroup->checkedAction()->setChecked(false);
         }
     });
 
-    connect(widthSpin, QOverload<int>::of(&QSpinBox::valueChanged), m_canvas, &EditorCanvas::setStrokeWidth);
-    connect(m_colorButton, &QToolButton::clicked, this, &EditorWindow::pickColor);
-    connect(m_applyCropAction, &QAction::triggered, this, [this, cropAction]() {
-        m_canvas->applyCrop();
-        cropAction->setChecked(false);
+    connect(m_widthSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int width) {
+        m_strokeWidth = width;
+        if (EditorCanvas *canvas = currentCanvas()) canvas->setStrokeWidth(width);
     });
-    connect(m_undoAction, &QAction::triggered, this, [this]() { m_canvas->undo(); });
-    connect(saveAction, &QAction::triggered, this, &EditorWindow::saveToFile);
-    connect(copyAction, &QAction::triggered, this, &EditorWindow::copyToClipboard);
+    connect(m_colorButton, &QToolButton::clicked, this, &EditorWindow::pickColor);
+    connect(m_applyCropAction, &QAction::triggered, this, [this]() {
+        if (EditorCanvas *canvas = currentCanvas()) canvas->applyCrop();
+        m_cropAction->setChecked(false);
+    });
+    connect(m_undoAction, &QAction::triggered, this, [this]() {
+        if (EditorCanvas *canvas = currentCanvas()) canvas->undo();
+    });
+    connect(m_saveAction, &QAction::triggered, this, &EditorWindow::saveToFile);
+    connect(m_copyAction, &QAction::triggered, this, &EditorWindow::copyToClipboard);
     connect(settingsAction, &QAction::triggered, this, &EditorWindow::showSettingsPage);
-    connect(closeAction, &QAction::triggered, this, &EditorWindow::close);
-    connect(m_canvas, &EditorCanvas::changed, this, &EditorWindow::updateActionStates);
+    connect(m_closeTabAction, &QAction::triggered, this, [this]() { closeTab(m_tabs->currentIndex()); });
 
+    resize(900, 640);
     updateActionStates();
+    showSettingsPage();
+}
 
-    if (m_hasImage) {
-        showImagePage();
-        resize(qMin(image.width() + 80, 1200), qMin(image.height() + 110, 900));
-    } else {
-        saveAction->setEnabled(false);
-        copyAction->setEnabled(false);
-        showSettingsPage();
-        resize(520, 420);
+EditorCanvas *EditorWindow::currentCanvas() const
+{
+    auto *area = qobject_cast<QScrollArea *>(m_tabs->currentWidget());
+    return area ? qobject_cast<EditorCanvas *>(area->widget()) : nullptr;
+}
+
+QString EditorWindow::currentPath() const
+{
+    QWidget *page = m_tabs->currentWidget();
+    return page ? page->property(kPathProperty).toString() : QString();
+}
+
+bool EditorWindow::hasImages() const
+{
+    return m_tabs->count() > 0;
+}
+
+void EditorWindow::applyToolState(EditorCanvas *canvas)
+{
+    canvas->setColor(m_currentColor);
+    canvas->setStrokeWidth(m_strokeWidth);
+    canvas->setTool(m_tool);
+}
+
+void EditorWindow::openImage(const QImage &image, const QString &savedPath)
+{
+    if (image.isNull()) {
+        return;
+    }
+
+    for (int i = 0; i < m_tabs->count(); ++i) {
+        if (!savedPath.isEmpty() && m_tabs->widget(i)->property(kPathProperty).toString() == savedPath) {
+            m_tabs->setCurrentIndex(i);
+            showImagePage();
+            present();
+            return;
+        }
+    }
+
+    auto *canvas = new EditorCanvas(image);
+    applyToolState(canvas);
+    connect(canvas, &EditorCanvas::changed, this, &EditorWindow::updateActionStates);
+
+    auto *area = new QScrollArea;
+    area->setWidget(canvas);
+    area->setWidgetResizable(false);
+    area->setProperty(kPathProperty, savedPath);
+
+    const int index = m_tabs->addTab(area, tabTitle(savedPath));
+    m_tabs->setTabToolTip(index, savedPath);
+    m_tabs->setCurrentIndex(index);
+
+    if (m_tabs->count() == 1) {
+        resize(qMin(image.width() + 80, 1200), qMin(image.height() + 140, 900));
+    }
+    showImagePage();
+    present();
+}
+
+void EditorWindow::closeTab(int index)
+{
+    if (index < 0 || index >= m_tabs->count()) {
+        return;
+    }
+    QWidget *page = m_tabs->widget(index);
+    m_tabs->removeTab(index);
+    delete page;
+
+    if (!hasImages() && m_stack->currentIndex() == 0) {
+        close();
     }
 }
 
-QString EditorWindow::imageTitle() const
+void EditorWindow::onCurrentTabChanged()
 {
-    return QStringLiteral("PluckIt Editor - %1").arg(QFileInfo(m_savedPath).fileName());
+    if (EditorCanvas *canvas = currentCanvas()) {
+        applyToolState(canvas);
+    }
+    updateActionStates();
+    updateWindowTitle();
+}
+
+void EditorWindow::present()
+{
+    if (isMinimized()) {
+        showNormal();
+    } else {
+        show();
+    }
+    raise();
+    activateWindow();
+}
+
+void EditorWindow::updateWindowTitle()
+{
+    if (m_stack->currentIndex() == 1) {
+        setWindowTitle(QStringLiteral("PluckIt Settings"));
+        return;
+    }
+    const QString path = currentPath();
+    setWindowTitle(path.isEmpty() ? QStringLiteral("PluckIt Editor")
+                                  : QStringLiteral("PluckIt Editor - %1").arg(QFileInfo(path).fileName()));
 }
 
 void EditorWindow::showSettingsPage()
@@ -184,7 +323,7 @@ void EditorWindow::showSettingsPage()
     m_topBar->hide();
     m_leftBar->hide();
     m_stack->setCurrentIndex(1);
-    setWindowTitle(QStringLiteral("PluckIt Settings"));
+    updateWindowTitle();
 }
 
 void EditorWindow::showImagePage()
@@ -192,13 +331,19 @@ void EditorWindow::showImagePage()
     m_topBar->show();
     m_leftBar->show();
     m_stack->setCurrentIndex(0);
-    setWindowTitle(imageTitle());
+    updateWindowTitle();
 }
 
 void EditorWindow::updateActionStates()
 {
-    m_applyCropAction->setEnabled(m_canvas->hasPendingCrop());
-    m_undoAction->setEnabled(m_canvas->canUndo());
+    EditorCanvas *canvas = currentCanvas();
+    const bool hasCanvas = canvas != nullptr;
+    m_applyCropAction->setEnabled(hasCanvas && canvas->hasPendingCrop());
+    m_undoAction->setEnabled(hasCanvas && canvas->canUndo());
+    m_saveAction->setEnabled(hasCanvas);
+    m_copyAction->setEnabled(hasCanvas);
+    m_cropAction->setEnabled(hasCanvas);
+    m_closeTabAction->setEnabled(hasCanvas);
 }
 
 void EditorWindow::pickColor()
@@ -206,21 +351,28 @@ void EditorWindow::pickColor()
     const QColor chosen = QColorDialog::getColor(m_currentColor, this, QStringLiteral("Annotation Color"));
     if (chosen.isValid()) {
         m_currentColor = chosen;
-        m_canvas->setColor(chosen);
+        if (EditorCanvas *canvas = currentCanvas()) canvas->setColor(chosen);
         m_colorButton->setIcon(IconFactory::colorSwatch(chosen, 24));
     }
 }
 
 void EditorWindow::copyToClipboard()
 {
-    QGuiApplication::clipboard()->setImage(m_canvas->flattenedImage());
+    EditorCanvas *canvas = currentCanvas();
+    if (!canvas) {
+        return;
+    }
+    QGuiApplication::clipboard()->setImage(canvas->flattenedImage());
     statusBar()->showMessage(QStringLiteral("Copied to clipboard"), 2000);
 }
 
 void EditorWindow::saveToFile()
 {
-    const QImage flattened = m_canvas->flattenedImage();
-    if (flattened.save(m_savedPath, "PNG")) {
+    EditorCanvas *canvas = currentCanvas();
+    if (!canvas) {
+        return;
+    }
+    if (canvas->flattenedImage().save(currentPath(), "PNG")) {
         statusBar()->showMessage(QStringLiteral("Saved"), 2000);
     } else {
         statusBar()->showMessage(QStringLiteral("Save failed"), 3000);

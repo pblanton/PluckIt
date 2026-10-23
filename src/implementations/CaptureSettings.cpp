@@ -66,6 +66,11 @@ bool CaptureSettings::autoHide() const
     return QSettings().value(SettingsKeys::AutoHide, true).toBool();
 }
 
+bool CaptureSettings::hideWhileCapturing() const
+{
+    return QSettings().value(SettingsKeys::HideWhileCapturing, true).toBool();
+}
+
 bool CaptureSettings::delayEnabled() const
 {
     return QSettings().value(SettingsKeys::DelayEnabled, false).toBool();
@@ -100,6 +105,11 @@ void CaptureSettings::setIncludeCursor(bool on)
 void CaptureSettings::setAutoHide(bool on)
 {
     store(SettingsKeys::AutoHide, on, autoHide(), this);
+}
+
+void CaptureSettings::setHideWhileCapturing(bool on)
+{
+    store(SettingsKeys::HideWhileCapturing, on, hideWhileCapturing(), this);
 }
 
 void CaptureSettings::setDelayEnabled(bool on)

@@ -31,9 +31,16 @@ and must remain the focus moving forward.
   second) and it slides back out; moving the pointer away for about a second
   tucks it away again. Can be turned off in the options.
 - **Capture options**: open capture in editor, copy to clipboard, include the
-  mouse cursor, auto-hide, and an optional countdown delay before capturing.
+  mouse cursor, auto-hide, hide PluckIt's own windows while capturing, and an
+  optional countdown delay before capturing.
+- **Hide PluckIt When Capturing**: on by default, the capture widget and the
+  editor window get out of the way before each capture and come back afterwards,
+  so they never appear in your screenshot. Turn it off to capture PluckIt
+  itself, for example when making a demo or tutorial.
 - **Editor**: opens on every capture (unless "Open Capture in Editor" is turned
-  off).
+  off). There is only ever one editor window; each capture opens as a new tab
+  in it and switches to that tab. Close a tab with its x or Ctrl+W; closing the
+  last tab closes the window.
   - Arrow, Rectangle, Ellipse annotations with adjustable color and stroke
     width.
   - **Pixelate** and **Blur** for redacting sensitive info (passwords, etc).
@@ -110,8 +117,9 @@ is already running is a no-op). It keeps running in the background; there's no
   chevron on the camera (or right-click it) to pick the mode: **Region**,
   **Window**, **Monitor** (asks which display), or **All Displays**. The choice
   is remembered.
-- **Pencil** -- reopen the editor on your most recent capture (disabled until
-  you've captured at least once).
+- **Pencil** -- open the editor on your most recent capture: one tab, or the
+  existing tab if it's already open (disabled until you've captured at least
+  once).
 - **Gear** -- open the settings page in the editor.
 - **Hamburger** -- slide the capture options tray in or out.
 - **Drag** the widget to reposition it. It sticks to the nearest screen edge;
@@ -145,7 +153,7 @@ is already running is a no-op). It keeps running in the background; there's no
 | `RegionSelectOverlay` | Click-drag bounding-box selection overlay |
 | `WindowSelectOverlay` | Hover-highlight-a-window selection overlay |
 | `CaptureManager` | Saves a QImage to a timestamped PNG under `~/Pictures/Captures` |
-| `EditorWindow` | The editor's `QMainWindow`: toolbars, actions, wiring |
+| `EditorWindow` | The single, tabbed editor `QMainWindow` (one tab per image): toolbars, actions, settings page |
 | `EditorCanvas` | The editor's drawing surface: tool state, mouse handling, crop handles |
 | `Annotation` | A single vector shape (arrow/rectangle/ellipse) and how to draw it |
 | `ImageEffects` | Pixelate/blur pixel manipulation, applied destructively to a region |

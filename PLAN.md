@@ -33,11 +33,14 @@ Linux/X11:
   position, camera button with a Region/Window/Monitor/All Displays mode menu,
   gear (settings page in the editor), pencil (open editor), and a slide-out
   options tray. Right-click menu (Open Editor / Settings / Exit).
+- Editor: a single tabbed window; each capture opens in a new tab, and the
+  pencil/gear open at most one tab (the most recent capture).
 - Auto-hide: after a second without the pointer nearby the widget collapses into
   a slim handle along its screen edge (the red grip line stays visible when it
   is open); resting the pointer on the handle for a third of a second slides it
   back out. Toggle in the options.
-- Capture options: preview in editor, copy to clipboard, include mouse cursor
+- Capture options: hide PluckIt's own windows while capturing (on by default),
+  preview in editor, copy to clipboard, include mouse cursor
   (needs `libxfixes-dev` at build time), and an optional countdown delay.
 - Install: [scripts/build-and-install.sh](scripts/build-and-install.sh]) builds and installs
 to `~/.local` with
