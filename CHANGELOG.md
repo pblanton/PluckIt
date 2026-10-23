@@ -2,7 +2,7 @@
 
 All notable changes to PluckIt are recorded here, newest first.
 
-## A_0.03 -- 2026-10-23
+## A_0.03 -- 2026-10-23 
 
 ### Changed
 
