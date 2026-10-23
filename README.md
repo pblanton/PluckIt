@@ -2,7 +2,7 @@
 
 ## This is a work in progress!!
 
-Current version: **A_0.02** -- see [CHANGELOG.md](CHANGELOG.md) for what changed.
+Current version: **A_0.03** -- see [CHANGELOG.md](CHANGELOG.md) for what changed.
 
 PluckIt is an original, Linux-first screen capture and annotation tool. It runs
 as a small always-on-top capture widget, captures a region/window/monitor/
