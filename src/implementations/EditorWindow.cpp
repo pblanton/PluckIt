@@ -30,6 +30,10 @@
 #include <QColorDialog>
 #include <QDateTime>
 #include <QFileInfo>
+#include <QFontComboBox>
+#include <QFontDatabase>
+#include <QLabel>
+#include <QSignalBlocker>
 #include <QGuiApplication>
 #include <QKeySequence>
 #include <QScrollArea>
@@ -162,6 +166,7 @@ EditorWindow::EditorWindow()
             if (on) {
                 m_tool = tool;
                 if (EditorCanvas *canvas = currentCanvas()) canvas->setTool(tool);
+                updateTextBar();
             }
         });
         return action;
@@ -170,6 +175,8 @@ EditorWindow::EditorWindow()
     QAction *arrowAction = addTool(IconFactory::Kind::Arrow, QStringLiteral("Arrow"), EditorCanvas::Tool::Arrow);
     addTool(IconFactory::Kind::Rectangle, QStringLiteral("Rectangle"), EditorCanvas::Tool::Rectangle);
     addTool(IconFactory::Kind::Ellipse, QStringLiteral("Ellipse"), EditorCanvas::Tool::Ellipse);
+    addTool(IconFactory::Kind::Text, QStringLiteral("Text (click to type, drag for a wrapped box)"),
+            EditorCanvas::Tool::Text);
     leftBar->addSeparator();
     addTool(IconFactory::Kind::Pixelate, QStringLiteral("Pixelate (redact)"), EditorCanvas::Tool::Pixelate);
     addTool(IconFactory::Kind::Blur, QStringLiteral("Blur (redact)"), EditorCanvas::Tool::Blur);
@@ -180,6 +187,7 @@ EditorWindow::EditorWindow()
         if (on) {
             m_tool = EditorCanvas::Tool::Crop;
             if (EditorCanvas *canvas = currentCanvas()) canvas->setTool(m_tool);
+            updateTextBar();
         }
     });
     // Entering crop mode and entering a draw/redact tool are mutually exclusive.
@@ -209,6 +217,61 @@ EditorWindow::EditorWindow()
     connect(settingsAction, &QAction::triggered, this, &EditorWindow::showSettingsPage);
     connect(m_closeTabAction, &QAction::triggered, this, [this]() { closeTab(m_tabs->currentIndex()); });
 
+    // --- text formatting toolbar: only shown while the Text tool is active ---
+    addToolBarBreak(Qt::TopToolBarArea);
+    m_textBar = new QToolBar(QStringLiteral("Text"), this);
+    m_textBar->setMovable(false);
+    m_textBar->setIconSize(QSize(20, 20));
+    addToolBar(Qt::TopToolBarArea, m_textBar);
+
+    m_textFont = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
+    m_textFont.setPixelSize(24);
+
+    m_fontCombo = new QFontComboBox(m_textBar);
+    m_fontCombo->setCurrentFont(m_textFont);
+    m_fontCombo->setToolTip(QStringLiteral("Font"));
+    m_textBar->addWidget(m_fontCombo);
+
+    m_fontSizeSpin = new QSpinBox(m_textBar);
+    m_fontSizeSpin->setRange(6, 400);
+    m_fontSizeSpin->setSuffix(QStringLiteral(" px"));
+    m_fontSizeSpin->setValue(m_textFont.pixelSize());
+    m_fontSizeSpin->setToolTip(QStringLiteral("Font size"));
+    m_textBar->addWidget(m_fontSizeSpin);
+
+    auto addStyle = [&](IconFactory::Kind kind, const QString &tip, const QKeySequence &shortcut) {
+        QAction *action = m_textBar->addAction(IconFactory::icon(kind, 20), tip);
+        action->setCheckable(true);
+        action->setShortcut(shortcut);
+        action->setToolTip(QStringLiteral("%1 (%2)").arg(tip, shortcut.toString(QKeySequence::NativeText)));
+        return action;
+    };
+    m_boldAction = addStyle(IconFactory::Kind::Bold, QStringLiteral("Bold"), QKeySequence::Bold);
+    m_italicAction = addStyle(IconFactory::Kind::Italic, QStringLiteral("Italic"), QKeySequence::Italic);
+    m_underlineAction = addStyle(IconFactory::Kind::Underline, QStringLiteral("Underline"), QKeySequence::Underline);
+
+    connect(m_fontCombo, &QFontComboBox::currentFontChanged, this, [this](const QFont &font) {
+        m_textFont.setFamily(font.family());
+        if (EditorCanvas *canvas = currentCanvas()) canvas->setTextFamily(font.family());
+    });
+    connect(m_fontSizeSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int px) {
+        m_textFont.setPixelSize(px);
+        if (EditorCanvas *canvas = currentCanvas()) canvas->setTextPixelSize(px);
+    });
+    connect(m_boldAction, &QAction::toggled, this, [this](bool on) {
+        m_textFont.setBold(on);
+        if (EditorCanvas *canvas = currentCanvas()) canvas->setTextBold(on);
+    });
+    connect(m_italicAction, &QAction::toggled, this, [this](bool on) {
+        m_textFont.setItalic(on);
+        if (EditorCanvas *canvas = currentCanvas()) canvas->setTextItalic(on);
+    });
+    connect(m_underlineAction, &QAction::toggled, this, [this](bool on) {
+        m_textFont.setUnderline(on);
+        if (EditorCanvas *canvas = currentCanvas()) canvas->setTextUnderline(on);
+    });
+    m_textBar->hide();
+
     resize(900, 640);
     updateActionStates();
     showSettingsPage();
@@ -235,7 +298,29 @@ void EditorWindow::applyToolState(EditorCanvas *canvas)
 {
     canvas->setColor(m_currentColor);
     canvas->setStrokeWidth(m_strokeWidth);
+    canvas->setTextDefaults(m_textFont);
     canvas->setTool(m_tool);
+}
+
+void EditorWindow::updateTextBar()
+{
+    if (!m_textBar) {
+        return; // the first tool is checked while the toolbars are still being built
+    }
+    m_textBar->setVisible(m_tool == EditorCanvas::Tool::Text && m_stack->currentIndex() == 0);
+}
+
+void EditorWindow::onTextFormatChanged(const QFont &font, const QColor &)
+{
+    const QSignalBlocker b1(m_fontCombo), b2(m_fontSizeSpin), b3(m_boldAction), b4(m_italicAction),
+        b5(m_underlineAction);
+    m_fontCombo->setCurrentFont(font);
+    if (font.pixelSize() > 0) {
+        m_fontSizeSpin->setValue(font.pixelSize());
+    }
+    m_boldAction->setChecked(font.bold());
+    m_italicAction->setChecked(font.italic());
+    m_underlineAction->setChecked(font.underline());
 }
 
 void EditorWindow::openImage(const QImage &image, const QString &savedPath)
@@ -256,6 +341,7 @@ void EditorWindow::openImage(const QImage &image, const QString &savedPath)
     auto *canvas = new EditorCanvas(image);
     applyToolState(canvas);
     connect(canvas, &EditorCanvas::changed, this, &EditorWindow::updateActionStates);
+    connect(canvas, &EditorCanvas::textFormatChanged, this, &EditorWindow::onTextFormatChanged);
 
     auto *area = new QScrollArea;
     area->setWidget(canvas);
@@ -322,6 +408,7 @@ void EditorWindow::showSettingsPage()
 {
     m_topBar->hide();
     m_leftBar->hide();
+    m_textBar->hide();
     m_stack->setCurrentIndex(1);
     updateWindowTitle();
 }
@@ -331,6 +418,7 @@ void EditorWindow::showImagePage()
     m_topBar->show();
     m_leftBar->show();
     m_stack->setCurrentIndex(0);
+    updateTextBar();
     updateWindowTitle();
 }
 
@@ -351,7 +439,10 @@ void EditorWindow::pickColor()
     const QColor chosen = QColorDialog::getColor(m_currentColor, this, QStringLiteral("Annotation Color"));
     if (chosen.isValid()) {
         m_currentColor = chosen;
-        if (EditorCanvas *canvas = currentCanvas()) canvas->setColor(chosen);
+        if (EditorCanvas *canvas = currentCanvas()) {
+            canvas->setColor(chosen);
+            canvas->recolorText(chosen);
+        }
         m_colorButton->setIcon(IconFactory::colorSwatch(chosen, 24));
     }
 }
@@ -362,6 +453,7 @@ void EditorWindow::copyToClipboard()
     if (!canvas) {
         return;
     }
+    canvas->commitTextEdit();
     QGuiApplication::clipboard()->setImage(canvas->flattenedImage());
     statusBar()->showMessage(QStringLiteral("Copied to clipboard"), 2000);
 }
@@ -372,6 +464,7 @@ void EditorWindow::saveToFile()
     if (!canvas) {
         return;
     }
+    canvas->commitTextEdit();
     if (canvas->flattenedImage().save(currentPath(), "PNG")) {
         statusBar()->showMessage(QStringLiteral("Saved"), 2000);
     } else {

@@ -25,6 +25,14 @@ All notable changes to PluckIt are recorded here, newest first.
 
 ### Added
 
+- **Text tool** in the editor (T in the tools bar). Click to type or drag out a
+  wrapped box. Text is rich: a font picker with every installed font, size in
+  pixels, bold, italic, underline, and a color per run, so one block can mix
+  fonts, sizes, and colors. Formatting applies to the selected characters or to
+  what you type next, or to the whole block when it's selected. Blocks can be
+  selected, moved, resized (wrap width), edited again (click a selected block,
+  double-click, or Enter), and deleted (Delete); all of it is undoable. A text
+  formatting bar appears while the tool is active.
 - **Copy from the editor**: a Copy button in the editor toolbar, and Ctrl+C
   (Cmd+C on macOS once ported), put the whole edited image -- annotations,
   redactions, and crop included -- on the clipboard, ready to paste into chat

@@ -45,7 +45,9 @@ Linux/X11:
 - Install: [scripts/build-and-install.sh](scripts/build-and-install.sh]) builds and installs
 to `~/.local` with
   a launcher entry, icons, and optional start-at-login.
-- Editor: arrow/rectangle/ellipse annotations, crop (with resize handles,
+- Editor: arrow/rectangle/ellipse annotations, rich-text text blocks (any
+  installed font, size, bold/italic/underline, per-run color; selectable,
+  movable, editable), crop (with resize handles,
   Enter-to-apply), pixelate/blur redaction (destructive), undo, save (overwrites
   the capture file in place).
 - Settings are stored with `QSettings` at `~/.config/PluckIt/PluckIt.conf`.
@@ -152,9 +154,12 @@ unreliable).
   the moment of capture, that overlap will be included (no `XComposite`-based
   true window capture).
 - No Redo (Undo only).
-- No text/callout/stamp/highlighter annotation tools -- only
-  arrow/rectangle/ellipse plus the pixelate/blur redaction tools.
-- No way to move/resize an annotation after placing it (no Select tool).
+- No callout/stamp/highlighter annotation tools -- arrow/rectangle/ellipse,
+  text, and the pixelate/blur redaction tools.
+- Only text blocks can be selected, moved, and edited after placing; arrows and
+  shapes still can't (no general Select tool).
+- Text blocks have no background/outline/shadow or paragraph alignment yet;
+  those would help readability over busy screenshots.
 - No configurable save location/filename pattern yet.
 - No global hotkey to trigger a capture -- the widget must be clicked.
 - A collapsed (auto-hidden) handle can't be dragged directly; the first press

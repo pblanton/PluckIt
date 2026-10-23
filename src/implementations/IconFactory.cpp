@@ -169,6 +169,34 @@ void drawCopy(QPainter &p, qreal size)
     p.drawRoundedRect(front, size * 0.06, size * 0.06);
 }
 
+void drawLetter(QPainter &p, qreal size, const QString &letter, bool bold, bool italic, bool underline)
+{
+    QFont font(QStringLiteral("Sans Serif"));
+    font.setPixelSize(qRound(size * 0.72));
+    font.setBold(bold);
+    font.setItalic(italic);
+    p.setFont(font);
+    p.setPen(kStroke);
+    const QRectF box(0, size * (underline ? -0.04 : 0.0), size, size);
+    p.drawText(box, Qt::AlignCenter, letter);
+    if (underline) {
+        p.setPen(QPen(kStroke, size * 0.07, Qt::SolidLine, Qt::RoundCap));
+        p.drawLine(QPointF(size * 0.24, size * 0.86), QPointF(size * 0.76, size * 0.86));
+    }
+}
+
+void drawTextTool(QPainter &p, qreal size)
+{
+    // capital "T" with serifs, drawn from lines so it stays crisp at any size
+    p.setPen(QPen(kStroke, size * 0.1, Qt::SolidLine, Qt::SquareCap));
+    p.drawLine(QPointF(size * 0.2, size * 0.22), QPointF(size * 0.8, size * 0.22));
+    p.drawLine(QPointF(size * 0.5, size * 0.22), QPointF(size * 0.5, size * 0.8));
+    p.setPen(QPen(kStroke, size * 0.07, Qt::SolidLine, Qt::RoundCap));
+    p.drawLine(QPointF(size * 0.2, size * 0.22), QPointF(size * 0.2, size * 0.34));
+    p.drawLine(QPointF(size * 0.8, size * 0.22), QPointF(size * 0.8, size * 0.34));
+    p.drawLine(QPointF(size * 0.38, size * 0.8), QPointF(size * 0.62, size * 0.8));
+}
+
 void drawClose(QPainter &p, qreal size)
 {
     const qreal m = size * 0.26;
@@ -308,6 +336,10 @@ QIcon icon(Kind kind, int size)
     case Kind::Save: drawSave(p, size); break;
     case Kind::Copy: drawCopy(p, size); break;
     case Kind::Close: drawClose(p, size); break;
+    case Kind::Text: drawTextTool(p, size); break;
+    case Kind::Bold: drawLetter(p, size, QStringLiteral("B"), true, false, false); break;
+    case Kind::Italic: drawLetter(p, size, QStringLiteral("I"), false, true, false); break;
+    case Kind::Underline: drawLetter(p, size, QStringLiteral("U"), false, false, true); break;
     }
 
     p.end();

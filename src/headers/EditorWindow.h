@@ -31,6 +31,7 @@
 
 class QAction;
 class QActionGroup;
+class QFontComboBox;
 class QSpinBox;
 class QStackedWidget;
 class QTabWidget;
@@ -66,6 +67,8 @@ private:
     void applyToolState(EditorCanvas *canvas);
     void onCurrentTabChanged();
     void closeTab(int index);
+    void updateTextBar();
+    void onTextFormatChanged(const QFont &font, const QColor &color);
     void updateActionStates();
     void updateWindowTitle();
     void pickColor();
@@ -86,9 +89,16 @@ private:
     QAction *m_closeTabAction = nullptr;
     QActionGroup *m_toolGroup = nullptr;
     QSpinBox *m_widthSpin = nullptr;
+    QToolBar *m_textBar = nullptr;
+    QFontComboBox *m_fontCombo = nullptr;
+    QSpinBox *m_fontSizeSpin = nullptr;
+    QAction *m_boldAction = nullptr;
+    QAction *m_italicAction = nullptr;
+    QAction *m_underlineAction = nullptr;
     QToolButton *m_colorButton = nullptr;
 
     EditorCanvas::Tool m_tool = EditorCanvas::Tool::Arrow;
     QColor m_currentColor = QColor(220, 40, 40);
     int m_strokeWidth = 3;
+    QFont m_textFont;
 };

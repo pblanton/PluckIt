@@ -34,7 +34,7 @@ class QPainter;
 // consistent look everywhere.
 namespace IconFactory {
 
-enum class Kind { Arrow, Rectangle, Ellipse, Pixelate, Blur, Crop, Undo, Save, Copy, Close };
+enum class Kind { Arrow, Rectangle, Ellipse, Pixelate, Blur, Crop, Undo, Save, Copy, Close, Text, Bold, Italic, Underline };
 
 // Outline glyphs for the floating capture widget. Unlike the toolbar icons
 // these take a color (the widget is dark, the editor toolbar is light) and are

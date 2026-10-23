@@ -43,9 +43,20 @@ and must remain the focus moving forward.
   last tab closes the window.
   - Arrow, Rectangle, Ellipse annotations with adjustable color and stroke
     width.
+  - **Text** (the T tool): click anywhere to start typing, or drag out a box to
+    get wrapped text. A formatting bar appears with a font picker (every
+    installed font), size in pixels, bold, italic (Ctrl+I), and underline
+    (Ctrl+U), and the color button recolors text too. Formatting applies to the
+    selected characters, or to what you type next; with a whole block selected
+    it applies to the block, so one block can mix fonts, sizes, and colors. Click
+    a block to select it, drag it to move it, drag the handle on its right edge
+    to change its wrap width, and click it again (or double-click, or press
+    Enter) to edit it. Delete removes the selected block and Esc finishes
+    editing. Text blocks stay editable until you save, and Undo covers them.
   - **Pixelate** and **Blur** for redacting sensitive info (passwords, etc).
     These are destructive (baked into the image immediately), with Undo as the
-    safety net.
+    safety net. Once the image is saved, blur and pixellate are not overlays which
+    can be removed later. 
   - **Crop** with draggable resize handles on all 8 corners/edges; Enter applies
     it, or use the Apply Crop button.
   - Undo (stack-based, covers annotations, redactions, and crop).
@@ -155,7 +166,7 @@ is already running is a no-op). It keeps running in the background; there's no
 | `CaptureManager` | Saves a QImage to a timestamped PNG under `~/Pictures/Captures` |
 | `EditorWindow` | The single, tabbed editor `QMainWindow` (one tab per image): toolbars, actions, settings page |
 | `EditorCanvas` | The editor's drawing surface: tool state, mouse handling, crop handles |
-| `Annotation` | A single vector shape (arrow/rectangle/ellipse) and how to draw it |
+| `Annotation` / `TextAnnotation` | A single vector shape (arrow/rectangle/ellipse), or a rich-text block, and how to draw it |
 | `ImageEffects` | Pixelate/blur pixel manipulation, applied destructively to a region |
 | `IconFactory` | Procedurally-drawn toolbar icons (no dependency on a system icon theme) |
 | `SettingsPage` / `SettingsKeys` | The editor's settings page and the QSettings key names |

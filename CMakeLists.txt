@@ -27,6 +27,8 @@ add_executable(PluckIt
     src/headers/WindowSelectOverlay.h
     src/headers/CaptureManager.h
     src/headers/Annotation.h
+    src/implementations/TextAnnotation.cpp
+    src/headers/TextAnnotation.h
     src/headers/EditorCanvas.h
     src/headers/EditorWindow.h
     src/headers/ImageEffects.h
