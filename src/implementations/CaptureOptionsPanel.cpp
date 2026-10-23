@@ -43,6 +43,7 @@ CaptureOptionsPanel::CaptureOptionsPanel(QWidget *parent)
     m_clipboard = new ToggleSwitch(this);
     m_cursor = new ToggleSwitch(this);
     m_autoHide = new ToggleSwitch(this);
+    m_hideWhileCapturing = new ToggleSwitch(this);
 
     grid->addWidget(new QLabel(QStringLiteral("Open Capture in Editor"), this), 0, 0);
     grid->addWidget(m_preview, 0, 1, Qt::AlignRight);
@@ -58,14 +59,17 @@ CaptureOptionsPanel::CaptureOptionsPanel(QWidget *parent)
     m_delaySpin = new QSpinBox(this);
     m_delaySpin->setRange(1, 60);
     m_delaySpin->setSuffix(QStringLiteral(" seconds"));
-    grid->addWidget(m_delayCheck, 4, 0);
-    grid->addWidget(m_delaySpin, 4, 1, Qt::AlignRight);
+    grid->addWidget(new QLabel(QStringLiteral("Hide PluckIt When Capturing"), this), 4, 0);
+    grid->addWidget(m_hideWhileCapturing, 4, 1, Qt::AlignRight);
+    grid->addWidget(m_delayCheck, 5, 0);
+    grid->addWidget(m_delaySpin, 5, 1, Qt::AlignRight);
 
     CaptureSettings &settings = CaptureSettings::instance();
     connect(m_preview, &QAbstractButton::toggled, &settings, &CaptureSettings::setPreviewInEditor);
     connect(m_clipboard, &QAbstractButton::toggled, &settings, &CaptureSettings::setCopyToClipboard);
     connect(m_cursor, &QAbstractButton::toggled, &settings, &CaptureSettings::setIncludeCursor);
     connect(m_autoHide, &QAbstractButton::toggled, &settings, &CaptureSettings::setAutoHide);
+    connect(m_hideWhileCapturing, &QAbstractButton::toggled, &settings, &CaptureSettings::setHideWhileCapturing);
     connect(m_delayCheck, &QCheckBox::toggled, &settings, &CaptureSettings::setDelayEnabled);
     connect(m_delaySpin, QOverload<int>::of(&QSpinBox::valueChanged), &settings, &CaptureSettings::setDelaySeconds);
     connect(&settings, &CaptureSettings::changed, this, &CaptureOptionsPanel::refresh);
@@ -77,11 +81,12 @@ void CaptureOptionsPanel::refresh()
 {
     const CaptureSettings &settings = CaptureSettings::instance();
     const QSignalBlocker b1(m_preview), b2(m_clipboard), b3(m_cursor), b4(m_delayCheck), b5(m_delaySpin),
-        b6(m_autoHide);
+        b6(m_autoHide), b7(m_hideWhileCapturing);
     m_preview->setChecked(settings.previewInEditor());
     m_clipboard->setChecked(settings.copyToClipboard());
     m_cursor->setChecked(settings.includeCursor());
     m_autoHide->setChecked(settings.autoHide());
+    m_hideWhileCapturing->setChecked(settings.hideWhileCapturing());
     m_delayCheck->setChecked(settings.delayEnabled());
     m_delaySpin->setValue(settings.delaySeconds());
     m_delaySpin->setEnabled(settings.delayEnabled());

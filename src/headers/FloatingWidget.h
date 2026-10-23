@@ -97,6 +97,7 @@ private:
     void onWindowSelected(const WindowInfo &info);
     void onSelectionCancelled();
     void completeCapture(const QRect &globalRect);
+    void endCapture();
     void finishCapture(const QImage &image);
     void flashStatus(const QString &text);
 
@@ -117,6 +118,8 @@ private:
     QTimer *m_countdownTimer = nullptr;
     int m_countdownRemaining = 0;
     QRect m_pendingMonitor;
+    bool m_captureActive = false;
+    QPointer<EditorWindow> m_hiddenEditor;
 
     QVariantAnimation *m_slide = nullptr;
     QTimer *m_hoverTimer = nullptr;
@@ -135,5 +138,4 @@ private:
 
     QImage m_lastCaptureImage;
     QString m_lastCapturePath;
-    QPointer<EditorWindow> m_lastEditor;
 };

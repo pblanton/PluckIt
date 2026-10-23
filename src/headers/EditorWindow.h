@@ -24,43 +24,71 @@
 
 #include <QColor>
 #include <QMainWindow>
+#include <QPointer>
 #include <QString>
 
-class EditorCanvas;
+#include "EditorCanvas.h"
+
 class QAction;
+class QActionGroup;
+class QSpinBox;
 class QStackedWidget;
+class QTabWidget;
 class QToolBar;
 class QToolButton;
 
-// Standalone annotation editor window opened on a just-captured (and
-// already silently-saved) image. Save overwrites that same file in place;
-// closing without saving leaves the original raw capture untouched. It also
-// hosts the settings page; with a null image it opens on that page alone
-// (there's nothing to annotate yet).
+// The annotation editor. There is only ever one: captures open as tabs in the
+// existing window rather than spawning a window each, so use acquire() instead
+// of constructing one. Each tab holds one image; Save overwrites that tab's
+// file in place, and closing a tab without saving leaves the original raw
+// capture untouched. The window also hosts the settings page, and can sit on
+// that page alone when there is nothing to annotate yet.
 class EditorWindow : public QMainWindow {
     Q_OBJECT
 public:
-    EditorWindow(const QImage &image, const QString &savedPath, QWidget *parent = nullptr);
+    static EditorWindow *instance();
+    static EditorWindow &acquire();
+
+    // Adds a tab for the image (or switches to the existing tab for that path),
+    // shows the image page, and brings the window to the front.
+    void openImage(const QImage &image, const QString &savedPath);
+    bool hasImages() const;
 
     void showSettingsPage();
     void showImagePage();
+    void present();
 
 private:
+    EditorWindow();
+
+    EditorCanvas *currentCanvas() const;
+    QString currentPath() const;
+    void applyToolState(EditorCanvas *canvas);
+    void onCurrentTabChanged();
+    void closeTab(int index);
     void updateActionStates();
+    void updateWindowTitle();
     void pickColor();
     void saveToFile();
     void copyToClipboard();
 
-    QString imageTitle() const;
+    static QPointer<EditorWindow> s_instance;
 
-    EditorCanvas *m_canvas = nullptr;
+    QTabWidget *m_tabs = nullptr;
     QStackedWidget *m_stack = nullptr;
     QToolBar *m_topBar = nullptr;
     QToolBar *m_leftBar = nullptr;
-    bool m_hasImage = false;
     QAction *m_applyCropAction = nullptr;
     QAction *m_undoAction = nullptr;
+    QAction *m_saveAction = nullptr;
+    QAction *m_copyAction = nullptr;
+    QAction *m_cropAction = nullptr;
+    QAction *m_closeTabAction = nullptr;
+    QActionGroup *m_toolGroup = nullptr;
+    QSpinBox *m_widthSpin = nullptr;
     QToolButton *m_colorButton = nullptr;
+
+    EditorCanvas::Tool m_tool = EditorCanvas::Tool::Arrow;
     QColor m_currentColor = QColor(220, 40, 40);
-    QString m_savedPath;
+    int m_strokeWidth = 3;
 };

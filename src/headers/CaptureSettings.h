@@ -38,6 +38,7 @@ public:
     bool copyToClipboard() const;
     bool includeCursor() const;
     bool autoHide() const;
+    bool hideWhileCapturing() const;
     bool delayEnabled() const;
     int delaySeconds() const;
     Mode mode() const;
@@ -46,6 +47,7 @@ public:
     void setCopyToClipboard(bool on);
     void setIncludeCursor(bool on);
     void setAutoHide(bool on);
+    void setHideWhileCapturing(bool on);
     void setDelayEnabled(bool on);
     void setDelaySeconds(int seconds);
     void setMode(Mode mode);
