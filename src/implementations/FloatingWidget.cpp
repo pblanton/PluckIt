@@ -30,6 +30,9 @@
 #include "../headers/RegionSelectOverlay.h"
 #include "../headers/SettingsKeys.h"
 #include "../headers/WindowSelectOverlay.h"
+#ifdef Q_OS_MAC
+#include "../headers/MacWindowUtils.h"
+#endif
 
 #include <QActionGroup>
 #include <QApplication>
@@ -127,6 +130,9 @@ FloatingWidget::FloatingWidget(QWidget *parent)
     loadLastCaptureFromDisk();
     m_editButton->setEnabled(!m_lastCapturePath.isEmpty());
     restoreDock();
+#ifdef Q_OS_MAC
+    mac_setHidesOnDeactivate(this, false);
+#endif
 }
 
 void FloatingWidget::buildUi()

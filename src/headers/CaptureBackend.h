@@ -28,7 +28,10 @@
 #include <QVector>
 #include <memory>
 
-using WindowHandle = unsigned long; // X11 Window id
+// Platform-neutral window handle. On X11: XID (unsigned long). On macOS:
+// CGWindowID stored as unsigned long in windowAt() results; NSView* (WId)
+// in the excluding list passed by overlays.
+using WindowHandle = unsigned long;
 
 struct WindowInfo {
     WindowHandle handle = 0;
