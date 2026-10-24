@@ -2,6 +2,34 @@
 
 All notable changes to PluckIt are recorded here, newest first.
 
+## A_0.04 -- 2026-10-23
+
+### Added
+
+- **macOS support.** PluckIt now builds and runs on macOS (Apple Silicon
+  and Intel) alongside the existing Linux build. Region, window, monitor,
+  and all-displays capture, the floating widget, and the full editor all
+  work on macOS.
+  - New `MacCaptureBackend` (Objective-C++): `grabRect` uses
+    `QScreen::grabWindow()`; `windowAt` uses `CGWindowListCopyWindowInfo`
+    with PID-based exclusion of PluckIt's own windows and a layer-≥20
+    filter to skip the Dock background window and menu bar, which otherwise
+    sit above normal app windows in the CG window list.
+  - `CMakeLists.txt` split with `if(APPLE)`/`else()`: Obj-C++ enabled,
+    CoreGraphics/AppKit/Foundation linked on macOS; X11/XFixes and the
+    `.desktop`/icon install rules remain Linux-only.
+  - Screen Recording permission is requested automatically on first launch
+    via `CGRequestScreenCaptureAccess()` (macOS 10.15+). The permission
+    attaches to the launching process (terminal, IDE) until PluckIt is
+    packaged as a proper `.app` bundle.
+
+### Fixed
+
+- **Capture widget disappearing on macOS.** `Qt::Tool` windows auto-hide
+  when the app loses focus — standard macOS behavior but wrong for a
+  persistent capture widget. Suppressed with
+  `[NSWindow setHidesOnDeactivate:NO]` via a new `MacWindowUtils` helper.
+
 ## A_0.03 -- 2026-10-23 
 
 ### Changed

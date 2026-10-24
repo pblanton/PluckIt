@@ -2,12 +2,12 @@
 
 ## This is a work in progress!!
 
-Current version: **A_0.03** -- see [CHANGELOG.md](CHANGELOG.md) for what changed.
+Current version: **A_0.04** -- see [CHANGELOG.md](CHANGELOG.md) for what changed.
 
-PluckIt is an original, Linux-first screen capture and annotation tool. It runs
-as a small always-on-top capture widget, captures a region/window/monitor/
-all-displays, and opens an editor for arrows, shapes, crop, blur, and pixelate
-before you share the result.
+PluckIt is an original screen capture and annotation tool for Linux and macOS.
+It runs as a small always-on-top capture widget, captures a region/window/
+monitor/all-displays, and opens an editor for arrows, shapes, crop, blur, and
+pixelate before you share the result.
 
 It's a clean-room implementation written from scratch for this project. It is
 not a decompiled, reverse-engineered, or ported clone of any existing commercial
@@ -70,7 +70,9 @@ and must remain the focus moving forward.
 
 ## Requirements
 
-- Linux, X11 session (see [PLAN.md](PLAN.md) for Wayland status)
+### Linux (X11)
+
+- X11 session (see [PLAN.md](PLAN.md) for Wayland status)
 - Qt 6 (Widgets, Network)
 - X11 development libraries (Xlib, Xext, and XFixes for cursor capture)
 - CMake >= 3.16, a C++17 compiler
@@ -82,14 +84,35 @@ sudo apt install -y qt6-base-dev libx11-dev libxext-dev libxfixes-dev \
   cmake build-essential
 ```
 
+### macOS
+
+- macOS 10.15 or later (Screen Recording permission required; macOS will
+  prompt on first launch)
+- Qt 6, CMake (install via Homebrew)
+
+```
+brew install cmake qt6
+```
+
 ## Build
+
+### Linux
 
 ```
 cmake -B build -S .
 cmake --build build
 ```
 
+### macOS
+
+```
+cmake -B build -S . -DCMAKE_PREFIX_PATH=/opt/homebrew
+cmake --build build
+```
+
 ## Install
+
+### Linux
 
 On Debian/Ubuntu-based systems (including Zorin) one script checks the
 dependencies, builds a Release binary, and installs it with a launcher entry and
@@ -111,6 +134,11 @@ installing missing packages. Options:
 
 Re-running the script upgrades an existing install (it stops a running PluckIt
 first). Afterwards, launch PluckIt from the app menu.
+
+### macOS
+
+No install script yet -- run directly from the build directory. `.app` bundling,
+code signing, and notarization are planned for a future release.
 
 ## Run
 
@@ -160,7 +188,8 @@ is already running is a no-op). It keeps running in the background; there's no
 | `CaptureTray` | The slide-out window that hosts the capture options |
 | `CaptureOptionsPanel` / `ToggleSwitch` | The option rows (shared by the tray and the settings page) and the switch control |
 | `CaptureSettings` | Observable, QSettings-backed capture options and current mode |
-| `CaptureBackend` / `X11CaptureBackend` | Abstract capture interface + the only implementation today (X11, Xlib) |
+| `CaptureBackend` / `X11CaptureBackend` / `MacCaptureBackend` | Abstract capture interface; X11 (Xlib) implementation for Linux, CoreGraphics/AppKit implementation for macOS |
+| `MacWindowUtils` | macOS helper: prevents the `Qt::Tool` capture widget from auto-hiding when the app loses focus |
 | `RegionSelectOverlay` | Click-drag bounding-box selection overlay |
 | `WindowSelectOverlay` | Hover-highlight-a-window selection overlay |
 | `CaptureManager` | Saves a QImage to a timestamped PNG under `~/Pictures/Captures` |
@@ -171,8 +200,7 @@ is already running is a no-op). It keeps running in the background; there's no
 | `IconFactory` | Procedurally-drawn toolbar icons (no dependency on a system icon theme) |
 | `SettingsPage` / `SettingsKeys` | The editor's settings page and the QSettings key names |
 
-See [PLAN.md](PLAN.md) for the current roadmap, known limitations, and porting notes
-(Wayland, macOS).
+See [PLAN.md](PLAN.md) for the current roadmap, known limitations, and Wayland porting notes.
 
 ## License
 

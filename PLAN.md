@@ -77,7 +77,7 @@ See [README.md's](README.md) architecture table for the file-by-file breakdown.
   timer. Default to 5 seconds, but remember the user's delay setting between
   activations.
 - [ ] Add Wayland support; notes below.
-- [ ] Create MacOS version; notes below.
+- [x] Create MacOS version; see `MacCaptureBackend.mm` / `MacWindowUtils.mm`.
 
 ### Wayland support -- notes
 
